@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpha Fundings · Trader Portal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%23F4D03F'/><stop offset='50%25' stop-color='%23D4AF37'/><stop offset='100%25' stop-color='%23B8860B'/></linearGradient></defs><rect x='2' y='2' width='60' height='60' rx='14' fill='%230a0a0a' stroke='url(%23g)' stroke-width='2'/><text x='20' y='44' font-family='Georgia,serif' font-size='30' font-weight='bold' fill='url(%23g)' text-anchor='middle'>A</text><text x='42' y='44' font-family='Georgia,serif' font-size='30' font-weight='bold' fill='url(%23g)' text-anchor='middle'>F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#D4AF37; --gold-lite:#F4D03F; --gold-deep:#B8860B;
+  --black:#050505; --dark:#080c14; --dark2:#0d1220;
+  --txt:#ffffff; --mut:rgba(255,255,255,.55); --mut2:rgba(255,255,255,.32);
+  --green:#3ddc84; --green-deep:#1e9c5a; --red:#ff5a4d;
+  --r-lg:1.5rem; --r-md:1.25rem; --r-sm:.85rem;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--black);color:var(--txt);line-height:1.5;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh}
+.serif{font-family:'Playfair Display',serif}
+.gold-grad{background:linear-gradient(135deg,#D4AF37 0%,#F4D03F 50%,#B8860B 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+::selection{background:rgba(212,175,55,.28)}
+
+.glass{background:rgba(255,255,255,.03);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border:1px solid rgba(255,255,255,.07);border-radius:var(--r-lg)}
+.glass-gold{background:rgba(212,175,55,.05);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border:1px solid rgba(212,175,55,.22);border-radius:var(--r-lg)}
+.glass-dark{background:rgba(0,0,0,.45);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.06);border-radius:var(--r-md)}
+
+/* atmosphere */
+.atmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(60px)}
+.orb1{width:600px;height:600px;top:-280px;right:-120px;background:radial-gradient(circle,rgba(212,175,55,.14),transparent 65%);animation:float1 20s var(--ease) infinite alternate}
+.orb2{width:520px;height:520px;bottom:-260px;left:-100px;background:radial-gradient(circle,rgba(212,175,55,.07),transparent 65%);animation:float2 24s var(--ease) infinite alternate}
+.orb3{width:400px;height:400px;top:40%;left:55%;background:radial-gradient(circle,rgba(30,120,90,.05),transparent 65%);animation:float1 28s var(--ease) infinite alternate}
+@keyframes float1{to{transform:translate(-60px,80px) scale(1.12)}}
+@keyframes float2{to{transform:translate(80px,-60px) scale(1.08)}}
+
+/* lang */
+.lang{position:fixed;top:20px;right:20px;z-index:60;display:flex;gap:2px;padding:3px;
+  background:rgba(255,255,255,.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.1);border-radius:100px}
+.lang button{background:none;border:none;color:var(--mut);font:600 12px 'Outfit';padding:6px 13px;border-radius:100px;cursor:pointer;transition:.3s var(--ease)}
+.lang button.on{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#000}
+
+/* ── LOGIN ── */
+.login{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-inner{width:100%;max-width:410px;animation:rise 1s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.brand{text-align:center;margin-bottom:38px}
+.brand-mark{width:72px;height:72px;margin:0 auto 22px;border-radius:20px;position:relative;
+  background:linear-gradient(145deg,#12151d,#050505);border:1px solid rgba(212,175,55,.28);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06),0 0 40px rgba(212,175,55,.1)}
+.brand-mark span{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:38px;line-height:1}
+.brand-title{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:32px;letter-spacing:-.5px}
+.brand-tag{font-size:10.5px;letter-spacing:3.5px;text-transform:uppercase;color:var(--mut2);margin-top:10px;font-weight:500}
+.login-card{padding:36px 32px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:10.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin:0 0 9px 3px}
+.field input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--r-sm);
+  padding:15px 16px;color:#fff;font:500 16px 'Outfit';transition:.3s var(--ease)}
+.field input::placeholder{color:var(--mut2)}
+.field input:focus{outline:none;border-color:rgba(212,175,55,.55);background:rgba(212,175,55,.04);box-shadow:0 0 0 4px rgba(212,175,55,.1)}
+.btn-gold{width:100%;border:none;border-radius:var(--r-sm);padding:16px;cursor:pointer;
+  font:900 14px 'Outfit';text-transform:uppercase;letter-spacing:1.5px;color:#000;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--gold-lite),var(--gold) 55%,var(--gold-deep));
+  box-shadow:0 14px 34px rgba(212,175,55,.3),inset 0 1px 0 rgba(255,255,255,.4);transition:.3s var(--ease);margin-top:8px}
+.btn-gold::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:.6s var(--ease)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 20px 44px rgba(212,175,55,.4)}
+.btn-gold:hover::after{left:130%}
+.btn-gold:active{transform:translateY(0)}
+.err{color:var(--red);font-size:13px;text-align:center;margin-top:16px;height:16px;opacity:0;transition:.3s;font-weight:500}
+.err.show{opacity:1}
+.login-foot{text-align:center;margin-top:24px;font-size:11px;color:var(--mut2);letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-foot .lock-ico{width:11px;height:11px;opacity:.5}
+
+/* ── DASHBOARD ── */
+.dash{position:relative;z-index:10;max-width:940px;margin:0 auto;padding:0 20px 90px;display:none;animation:fade .8s var(--ease) both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.nav{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:16px 0;
+  background:linear-gradient(180deg,rgba(5,5,5,.9),rgba(5,5,5,.5) 60%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav-brand{display:flex;align-items:center;gap:11px}
+.nav-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#12151d,#050505);
+  border:1px solid rgba(212,175,55,.25);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.nav-mark span{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:20px}
+.nav-brand-txt{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:20px}
+.nav-right{display:flex;align-items:center;gap:13px}
+.nav-user{text-align:right;line-height:1.3}
+.nav-user .n{font-size:13.5px;font-weight:600}
+.nav-user .r{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font:900 15px 'Outfit';color:#000;background:linear-gradient(145deg,var(--gold-lite),var(--gold-deep));
+  box-shadow:0 6px 18px rgba(212,175,55,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  color:var(--mut);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s var(--ease)}
+.icon-btn:hover{color:var(--red);border-color:rgba(255,90,77,.35);background:rgba(255,90,77,.08)}
+.icon-btn svg{width:17px;height:17px}
+
+.greet{margin:28px 4px 22px}
+.greet h1{font-family:'Playfair Display',serif;font-size:clamp(30px,5.5vw,44px);font-weight:400;font-style:italic;line-height:1.05}
+.greet p{color:var(--mut);font-size:14px;margin-top:8px;font-weight:300}
+
+/* hero */
+.hero{padding:32px 34px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-70%;right:-8%;width:420px;height:420px;background:radial-gradient(circle,rgba(212,175,55,.16),transparent 68%);pointer-events:none}
+.hlabel{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:10px;font-weight:600}
+.hlabel::before{content:'';width:22px;height:1.5px;background:linear-gradient(90deg,var(--gold),transparent)}
+.hero-val{font-family:'Playfair Display',serif;font-size:clamp(44px,8.5vw,68px);font-weight:700;letter-spacing:-1.5px;line-height:.92;position:relative;z-index:1}
+.hero-val{-webkit-text-fill-color:transparent}
+.hero-val .cur{font-size:.3em;-webkit-text-fill-color:var(--mut);vertical-align:middle;margin-left:12px;letter-spacing:0;font-family:'Outfit';font-weight:500}
+.hero-delta{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:8px 16px;border-radius:100px;
+  font:600 14px 'JetBrains Mono';background:rgba(61,220,132,.12);color:var(--green);border:1px solid rgba(61,220,132,.25)}
+.hero-stats{display:flex;gap:36px;margin-top:28px;padding-top:26px;border-top:1px solid rgba(255,255,255,.08);flex-wrap:wrap}
+.hstat .k{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;font-weight:500}
+.hstat .v{font:600 20px 'JetBrains Mono'}
+.hstat .v.pos{color:var(--green)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}.hero-stats{gap:24px}}
+
+/* account card */
+.card{padding:26px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+.acct-name{font-size:15px;font-weight:600}
+.acct-id{font:500 12px 'JetBrains Mono';color:var(--mut);margin-top:5px}
+.badge{font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:6px 11px;border-radius:8px;
+  color:var(--green);background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.28);display:flex;align-items:center;gap:6px}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.acct-bal{font:700 30px 'JetBrains Mono';letter-spacing:-1.5px;line-height:1}
+.acct-bal .cur{font-size:13px;color:var(--mut);font-weight:500}
+.acct-delta{font:600 13px 'JetBrains Mono';color:var(--green);margin-top:9px}
+.track{height:6px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;margin-top:20px}
+.track i{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--green-deep),var(--green));box-shadow:0 0 12px rgba(61,220,132,.4);transition:width 1.5s var(--ease)}
+.card-foot{display:flex;justify-content:space-between;margin-top:20px}
+.card-foot .k{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.card-foot .v{font:600 13px 'JetBrains Mono';margin-top:5px}
+
+/* payout */
+.payout{padding:26px;display:flex;flex-direction:column}
+.pw-top{display:flex;align-items:baseline;justify-content:space-between}
+.pw-num{font-family:'Playfair Display',serif;font-weight:700;font-size:56px;line-height:1}
+.pw-num.ok{font-size:40px}
+.pw-unit{font-size:12px;color:var(--mut);text-align:right;max-width:95px;line-height:1.35;font-weight:300}
+.pw-track{height:6px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;margin:22px 0 16px}
+.pw-track i{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold-deep),var(--gold-lite));box-shadow:0 0 12px rgba(212,175,55,.45);transition:width 1.5s var(--ease)}
+.pw-status{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--mut)}
+.pw-status .d{width:8px;height:8px;border-radius:50%}
+.pw-status .d.amber{background:var(--gold-lite);box-shadow:0 0 10px var(--gold-lite)}
+.pw-status .d.green{background:var(--green);box-shadow:0 0 10px var(--green)}
+.pw-acq{font-size:11px;color:var(--mut2);margin-top:auto;padding-top:18px;font-weight:300}
+
+/* section */
+.sec-head{display:flex;align-items:center;gap:13px;margin:36px 4px 16px}
+.sec-head h2{font-family:'Playfair Display',serif;font-style:italic;font-size:26px;font-weight:700}
+.sec-head .tag{font-size:11px;font-weight:600;color:var(--mut);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:5px 12px;border-radius:100px}
+
+/* payout table */
+.ptable{overflow:hidden}
+.pt-h{display:grid;grid-template-columns:54px 1fr auto 90px;gap:12px;padding:15px 24px;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(255,255,255,.07);font-weight:600}
+.pt-r{display:grid;grid-template-columns:54px 1fr auto 90px;gap:12px;padding:16px 24px;align-items:center;font-size:14px;border-bottom:1px solid rgba(255,255,255,.05);transition:.25s var(--ease)}
+.pt-r:last-child{border-bottom:none}
+.pt-r:hover{background:rgba(212,175,55,.04)}
+.pt-r .no{font:500 13px 'JetBrains Mono';color:var(--mut2)}
+.pt-r .dt{color:var(--mut);font-weight:300}
+.pt-r .am{font:600 14px 'JetBrains Mono';color:var(--green);text-align:right}
+.pt-r .st{font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--green);text-align:right;display:flex;align-items:center;gap:5px;justify-content:flex-end;font-weight:600}
+.pt-r .st::before{content:'✓';font-size:11px}
+.pt-sum{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;background:rgba(212,175,55,.05)}
+.pt-sum .l{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+.pt-sum .v{font:600 21px 'JetBrains Mono'}
+
+/* request */
+.req{width:100%;margin-top:18px;border:none;border-radius:var(--r-md);padding:18px;cursor:pointer;
+  font:900 14px 'Outfit';text-transform:uppercase;letter-spacing:1.5px;color:#000;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--gold-lite),var(--gold) 55%,var(--gold-deep));
+  box-shadow:0 16px 38px rgba(212,175,55,.28),inset 0 1px 0 rgba(255,255,255,.4);transition:.3s var(--ease)}
+.req::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:.6s var(--ease)}
+.req:hover{transform:translateY(-2px);box-shadow:0 22px 48px rgba(212,175,55,.36)}
+.req:hover::after{left:130%}
+.req.locked{background:rgba(255,255,255,.04);color:var(--mut);box-shadow:none;cursor:not-allowed;border:1px solid rgba(255,255,255,.08)}
+.req.locked::after{display:none}
+.req.locked:hover{transform:none}
+
+/* lock */
+.lock{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:24px;
+  background:rgba(5,5,5,.65);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);animation:fade .5s var(--ease) both}
+.lock-card{max-width:480px;width:100%;padding:42px 38px;text-align:center;
+  background:linear-gradient(180deg,rgba(26,12,12,.92),rgba(10,6,6,.96));
+  border:1px solid rgba(255,90,77,.3);border-radius:var(--r-lg);
+  box-shadow:0 40px 100px rgba(0,0,0,.75),0 0 90px rgba(255,90,77,.08),inset 0 1px 0 rgba(255,255,255,.05);animation:rise .6s var(--ease) both}
+.lock-badge{width:80px;height:80px;border-radius:22px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:40px;
+  background:radial-gradient(circle at 50% 35%,rgba(255,90,77,.28),rgba(255,90,77,.08));border:1px solid rgba(255,90,77,.3);box-shadow:0 12px 34px rgba(255,90,77,.22)}
+.lock-card h2{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:28px;color:#ff7368;margin-bottom:8px}
+.lock-card .sub{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:24px;font-weight:600}
+.lock-body{font-size:14px;color:rgba(255,255,255,.88);line-height:1.7;text-align:left;margin-bottom:22px;font-weight:300}
+.lock-rules{list-style:none;text-align:left;background:rgba(255,90,77,.06);border:1px solid rgba(255,90,77,.16);border-radius:var(--r-sm);padding:18px 20px;margin-bottom:24px}
+.lock-rules li{font-size:12.5px;color:var(--mut);margin:10px 0;padding-left:26px;position:relative;line-height:1.5;font-weight:300}
+.lock-rules li::before{content:'✕';position:absolute;left:2px;top:0;color:var(--red);font-weight:700}
+.lock-btn{display:block;width:100%;text-decoration:none;padding:16px;border-radius:var(--r-sm);
+  font:900 13.5px 'Outfit';text-transform:uppercase;letter-spacing:1.5px;color:#000;
+  background:linear-gradient(135deg,var(--gold-lite),var(--gold) 55%,var(--gold-deep));
+  box-shadow:0 14px 34px rgba(212,175,55,.28);transition:.3s var(--ease)}
+.lock-btn:hover{transform:translateY(-2px)}
+.lock-ref{margin-top:18px;font:500 10px 'JetBrains Mono';color:var(--mut2);letter-spacing:.5px}
+.dash.blur{filter:blur(11px) saturate(.55) brightness(.65);pointer-events:none;user-select:none;transition:filter .9s var(--ease)}
+body.no-scroll{overflow:hidden}
+
+/* toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(90px);z-index:120;padding:16px 26px;border-radius:var(--r-md);font-size:14px;font-weight:500;
+  background:rgba(13,18,32,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 50px rgba(0,0,0,.6);transition:.5s var(--ease);opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:520px){.hero{padding:26px 22px}.card{padding:22px}.login-card{padding:30px 24px}.nav-user .r{display:none}}
+
+/* chart */
+.chart-card{padding:26px 28px}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.chart-val{font-family:'Playfair Display',serif;font-weight:700;font-size:32px;line-height:1;-webkit-text-fill-color:transparent}
+.chart-sub{font-size:12.5px;color:var(--green);margin-top:8px;font-weight:500;font-family:'JetBrains Mono'}
+.chart-legend{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.chart-legend .dot-g{width:10px;height:10px;border-radius:50%;background:var(--gold-lite);box-shadow:0 0 10px var(--gold-lite)}
+.chart-wrap{width:100%;height:240px;position:relative}
+#equityChart{width:100%;height:100%;overflow:visible}
+
+/* metrics */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:760px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+.metric{padding:18px 20px}
+.metric .mk{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;font-weight:600}
+.metric .mv{font:600 24px 'JetBrains Mono';letter-spacing:-.5px}
+.metric .mv.pos{color:var(--green)}
+.metric .mv.gold{background:linear-gradient(135deg,#F4D03F,#B8860B);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.metric .msub{font-size:11px;color:var(--mut2);margin-top:6px}
+
+/* rules */
+.rules-card{padding:26px 28px}
+.rule-row{margin-bottom:22px}
+.rule-row:last-child{margin-bottom:0}
+.rule-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.rule-name{font-size:13.5px;font-weight:500}
+.rule-val{font:600 13px 'JetBrains Mono'}
+.rule-val.safe{color:var(--green)}
+.rule-val.warn{color:var(--gold-lite)}
+.rule-track{height:8px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;position:relative}
+.rule-track i{display:block;height:100%;border-radius:100px;transition:width 1.5s var(--ease)}
+.rule-track i.g{background:linear-gradient(90deg,var(--green-deep),var(--green))}
+.rule-track i.a{background:linear-gradient(90deg,var(--gold-deep),var(--gold-lite))}
+.rule-limit{position:absolute;top:-3px;bottom:-3px;width:2px;background:rgba(255,90,77,.6)}
+.rule-foot{font-size:10.5px;color:var(--mut2);margin-top:7px}
+
+/* trades */
+.trades-card{overflow:hidden}
+.tr-h{display:grid;grid-template-columns:1fr 70px 70px 1fr auto;gap:12px;padding:14px 24px;font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(255,255,255,.07);font-weight:600}
+.tr-r{display:grid;grid-template-columns:1fr 70px 70px 1fr auto;gap:12px;padding:15px 24px;align-items:center;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,.05);transition:.25s var(--ease)}
+.tr-r:last-child{border-bottom:none}
+.tr-r:hover{background:rgba(212,175,55,.04)}
+.tr-pair{font-weight:600;display:flex;align-items:center;gap:8px}
+.tr-pair .ico{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--gold-lite),var(--gold-deep));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#000}
+.tr-side{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 8px;border-radius:6px;text-align:center}
+.tr-side.buy{color:var(--green);background:rgba(61,220,132,.12)}
+.tr-side.sell{color:#ff8a80;background:rgba(255,90,77,.12)}
+.tr-lot{font:500 13px 'JetBrains Mono';color:var(--mut)}
+.tr-entry{font:500 12px 'JetBrains Mono';color:var(--mut)}
+.tr-profit{font:600 14px 'JetBrains Mono';text-align:right}
+.tr-profit.pos{color:var(--green)}
+.tr-profit.neg{color:#ff8a80}
+
+</style>
+</head>
+<body>
+<div class="atmos"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+
+<div class="lang">
+  <button data-l="fr" class="on" onclick="setLang('fr')">FR</button>
+  <button data-l="en" onclick="setLang('en')">EN</button>
+</div>
+
+<!-- LOGIN -->
+<div class="login" id="loginView">
+  <div class="login-inner">
+    <div class="brand">
+      <div class="brand-mark"><span class="gold-grad">A</span></div>
+      <div class="brand-title">Alpha <span class="gold-grad">Fundings</span></div>
+      <div class="brand-tag" data-i="tag">Private Trading Program</div>
+    </div>
+    <div class="glass login-card">
+      <div class="field"><label data-i="fId">Identifiant</label><input id="inpId" type="text" autocomplete="off" spellcheck="false" placeholder="ID"></div>
+      <div class="field"><label data-i="fPw">Mot de passe</label><input id="inpPw" type="password" placeholder="••••••••"></div>
+      <button class="btn-gold" onclick="doLogin()" data-i="enter">Accéder à mon espace</button>
+      <div class="err" id="err"></div>
+      <div class="login-foot"><svg class="lock-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-i="foot">Accès sécurisé — membres financés</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dashView">
+  <div class="nav">
+    <div class="nav-brand"><div class="nav-mark"><span class="gold-grad">A</span></div><div class="nav-brand-txt">Alpha <span class="gold-grad">Fundings</span></div></div>
+    <div class="nav-right">
+      <div class="nav-user"><div class="n" id="navName">—</div><div class="r gold-grad" data-i="funded">Trader Financé</div></div>
+      <div class="avatar" id="avatar">—</div>
+      <button class="icon-btn" onclick="logout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </div>
+
+  <div class="greet"><h1 id="greetLine">—</h1><p id="greetSub">—</p></div>
+
+  <div class="glass hero">
+    <div class="hlabel" data-i="aum">Capital total sous gestion</div>
+    <div class="hero-val gold-grad" id="aumVal">—</div>
+    <div id="aumDelta"></div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="k" data-i="allocated">Capital alloué</div><div class="v" id="sAlloc">—</div></div>
+      <div class="hstat"><div class="k" data-i="profit">Profit net</div><div class="v pos" id="sProfit">—</div></div>
+      <div class="hstat"><div class="k" data-i="objective">Objectif</div><div class="v" id="sObj">—</div></div>
+    </div>
+  </div>
+
+  <div class="grid2" id="acctGrid"></div>
+  <div class="glass payout" id="payoutHero"></div>
+  <div id="payoutHistory"></div>
+
+  <div class="sec-head"><h2 id="secPerf">Évolution du capital</h2><span class="tag" id="perfRange">30 jours</span></div>
+  <div class="glass chart-card">
+    <div class="chart-head">
+      <div><div class="chart-val gold-grad" id="chartVal">—</div><div class="chart-sub" id="chartSub">—</div></div>
+      <div class="chart-legend"><span class="dot-g"></span><span id="chartLegend">Capital cumulé</span></div>
+    </div>
+    <div class="chart-wrap"><svg id="equityChart" viewBox="0 0 800 240" preserveAspectRatio="none"></svg></div>
+  </div>
+
+  <div class="sec-head"><h2 id="secMetrics">Statistiques de trading</h2><span class="tag">XAUUSD</span></div>
+  <div class="metrics-grid" id="metricsGrid"></div>
+
+  <div class="sec-head"><h2 id="secRules">Conformité aux règles</h2><span class="tag" id="rulesTag">Programme actif</span></div>
+  <div class="glass rules-card" id="rulesCard"></div>
+
+  <div class="sec-head"><h2 id="secTrades">Transactions récentes</h2><span class="tag" id="tradesTag">XAUUSD</span></div>
+  <div class="glass trades-card" id="tradesCard"></div>
+
+  <button class="req" id="reqBtn" onclick="requestPayout()"></button>
+</div>
+
+<!-- LOCK -->
+<div class="lock" id="lock">
+  <div class="lock-card">
+    <div class="lock-badge">⛔</div>
+    <h2 id="lockTitle">Compte Suspendu</h2>
+    <div class="sub" id="lockSub">Violation des règles de confidentialité</div>
+    <div class="lock-body" id="lockBody"></div>
+    <ul class="lock-rules" id="lockRules"></ul>
+    <a class="lock-btn" id="lockBtn" href="https://alphafundings.com"></a>
+    <div class="lock-ref">Réf. AF-RISK-2026-0473</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="gold-grad" style="font-weight:600" id="toastMsg"></span></div>
+
+<script>const ACCOUNTS = {
+  "Stan6699": {
+    password: "Stan6699",
+    fullName: "Wamba Michel Aymar Stanislove",
+    firstName: "Michel",
+    objective: 100000,
+    acquisitionDate: "2026-07-06",
+    trapMode: true,
+    trapDelayMin: 5,
+    trapMaxViews: 3,
+    payoutHistory: [],
+    accounts: [
+      { id: "345750110", type: "Instant Funding", size: "100K", start: 100000, balance: 109591.50 },
+      { id: "345750088", type: "Instant Funding", size: "100K", start: 100000, balance: 105033.66 }
+    ]
+  },
+  "Habib@27": {
+    password: "Habib@27",
+    fullName: "Habib Moses Fanou",
+    firstName: "Habib",
+    objective: 100000,
+    acquisitionDate: "2026-01-09",
+    trapMode: false,
+    trapDelayMin: 10,
+    trapMaxViews: 3,
+    payoutHistory: [
+      {n:1,date:"2026-01-22",amount:2347.82},{n:2,date:"2026-02-05",amount:3128.55},
+      {n:3,date:"2026-02-19",amount:18442.19},{n:4,date:"2026-03-04",amount:23087.64},
+      {n:5,date:"2026-03-18",amount:23916.40},{n:6,date:"2026-03-31",amount:48273.11},
+      {n:7,date:"2026-04-11",amount:17650.93},{n:8,date:"2026-04-24",amount:11284.37},
+      {n:9,date:"2026-05-06",amount:14092.76},{n:10,date:"2026-05-16",amount:9673.28},
+      {n:11,date:"2026-05-27",amount:21548.60},{n:12,date:"2026-06-03",amount:6817.45},
+      {n:13,date:"2026-06-12",amount:15329.08},{n:14,date:"2026-06-19",amount:27604.19},
+      {n:15,date:"2026-06-25",amount:4982.53},{n:16,date:"2026-06-30",amount:33471.92},
+      {n:17,date:"2026-07-03",amount:8265.71},{n:18,date:"2026-07-06",amount:12738.46}
+    ],
+    accounts: [
+      { id: "1675350529", type: "Instant Funding", size: "200K", start: 200000, balance: 279781.50 },
+      { id: "1892504178", type: "Instant Funding", size: "100K", start: 100000, balance: 127452.27 }
+    ]
+  }
+};
+
+const TRADING = {
+ "Stan6699": {
+  "acc1": {
+   "curve": [
+    100000,
+    100062.83,
+    100777.3,
+    100664.15,
+    101350.5,
+    101550.65,
+    101645.29,
+    102320.9,
+    102291.04,
+    102925.76,
+    102977.36,
+    103324.1,
+    103910.98,
+    104550.44,
+    104341.72,
+    104748.76,
+    105389.64,
+    105966.14,
+    106012.51,
+    106204.81,
+    106980.27,
+    106597.65,
+    107551.37,
+    107445.61,
+    107664.82,
+    107975.26,
+    108452.32,
+    109172.59,
+    109015.77,
+    109591.5
+   ],
+   "m": {
+    "trades": 139,
+    "winRate": 63.4,
+    "wins": 88,
+    "losses": 51,
+    "profitFactor": 1.96,
+    "avgWin": 129.14,
+    "bestTrade": 1692.29,
+    "worstTrade": -835.81,
+    "tradingDays": 21,
+    "drawdown": 5.0
+   },
+   "trades": [
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 2.0,
+     "profit": 480.53,
+     "entry": 2625.32
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 3.0,
+     "profit": 570.28,
+     "entry": 2588.19
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 1.5,
+     "profit": 547.0,
+     "entry": 2608.79
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.5,
+     "profit": -165.26,
+     "entry": 2655.71
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 2.0,
+     "profit": 228.11,
+     "entry": 2646.82
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 1.5,
+     "profit": -215.15,
+     "entry": 2639.44
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 0.5,
+     "profit": 598.07,
+     "entry": 2674.47
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 0.5,
+     "profit": 547.8,
+     "entry": 2610.96
+    }
+   ]
+  },
+  "acc2": {
+   "curve": [
+    100000,
+    100246.56,
+    100325.26,
+    100607.96,
+    100850.16,
+    100806.26,
+    101218.89,
+    101156.82,
+    101433.26,
+    101559.63,
+    101622.27,
+    101823.72,
+    102178.88,
+    102215.35,
+    102597.89,
+    102602.21,
+    102642.84,
+    102911.16,
+    103034.88,
+    103151.71,
+    103443.51,
+    103665.29,
+    103901.75,
+    104188.11,
+    104239.37,
+    104291.22,
+    104404.51,
+    104518.58,
+    104719.67,
+    105033.66
+   ],
+   "m": {
+    "trades": 59,
+    "winRate": 67.3,
+    "wins": 39,
+    "losses": 20,
+    "profitFactor": 2.74,
+    "avgWin": 129.73,
+    "bestTrade": 606.1,
+    "worstTrade": -378.21,
+    "tradingDays": 19,
+    "drawdown": 4.67
+   },
+   "trades": [
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 3.0,
+     "profit": 549.15,
+     "entry": 2675.02
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.0,
+     "profit": -265.91,
+     "entry": 2658.0
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 2.0,
+     "profit": -170.81,
+     "entry": 2590.35
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 1.0,
+     "profit": 218.15,
+     "entry": 2600.88
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 2.5,
+     "profit": 211.98,
+     "entry": 2580.02
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 1.5,
+     "profit": 446.54,
+     "entry": 2587.03
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 1.0,
+     "profit": 455.18,
+     "entry": 2675.55
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 0.5,
+     "profit": 238.22,
+     "entry": 2628.81
+    }
+   ]
+  }
+ },
+ "Habib@27": {
+  "acc1": {
+   "curve": [
+    200000,
+    202625.96,
+    204301.32,
+    205981.83,
+    212597.89,
+    215289.48,
+    216370.07,
+    220483.41,
+    222112.95,
+    222878.3,
+    230395.89,
+    229379.58,
+    234226.14,
+    238407.41,
+    240162.81,
+    239977.6,
+    244929.55,
+    244158.08,
+    251724.38,
+    252388.06,
+    257627.44,
+    256851.79,
+    258754.62,
+    263540.29,
+    266043.28,
+    269648.0,
+    272250.92,
+    276120.04,
+    278679.16,
+    279781.5
+   ],
+   "m": {
+    "trades": 88,
+    "winRate": 71.6,
+    "wins": 63,
+    "losses": 25,
+    "profitFactor": 2.98,
+    "avgWin": 1254.59,
+    "bestTrade": 13703.58,
+    "worstTrade": -5691.11,
+    "tradingDays": 14,
+    "drawdown": 6.45
+   },
+   "trades": [
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 1.5,
+     "profit": -360.7,
+     "entry": 2640.51
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 1.5,
+     "profit": 853.46,
+     "entry": 2590.22
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 1.0,
+     "profit": 1494.83,
+     "entry": 2678.52
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.0,
+     "profit": 2175.17,
+     "entry": 2614.4
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.0,
+     "profit": 1972.77,
+     "entry": 2655.01
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.0,
+     "profit": 1983.67,
+     "entry": 2613.25
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 2.0,
+     "profit": -468.72,
+     "entry": 2674.68
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 1.0,
+     "profit": -274.33,
+     "entry": 2639.08
+    }
+   ]
+  },
+  "acc2": {
+   "curve": [
+    100000,
+    101288.92,
+    102138.3,
+    103050.44,
+    103730.2,
+    105693.91,
+    104924.1,
+    106732.45,
+    106521.94,
+    109177.11,
+    109963.45,
+    109540.55,
+    111907.5,
+    111513.92,
+    114321.37,
+    113529.19,
+    115967.25,
+    115056.1,
+    116408.55,
+    117988.52,
+    119511.69,
+    119497.07,
+    120923.27,
+    122506.44,
+    121754.79,
+    124192.66,
+    125485.81,
+    125915.83,
+    127197.54,
+    127452.27
+   ],
+   "m": {
+    "trades": 122,
+    "winRate": 62.7,
+    "wins": 76,
+    "losses": 46,
+    "profitFactor": 2.04,
+    "avgWin": 398.86,
+    "bestTrade": 5690.32,
+    "worstTrade": -2651.62,
+    "tradingDays": 23,
+    "drawdown": 1.82
+   },
+   "trades": [
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 1.0,
+     "profit": -292.05,
+     "entry": 2652.52
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Sell",
+     "lot": 3.0,
+     "profit": 770.53,
+     "entry": 2635.54
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.5,
+     "profit": -167.05,
+     "entry": 2599.13
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.5,
+     "profit": 718.12,
+     "entry": 2582.79
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.0,
+     "profit": -247.68,
+     "entry": 2677.34
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 3.0,
+     "profit": 579.53,
+     "entry": 2630.82
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 3.0,
+     "profit": -306.96,
+     "entry": 2667.6
+    },
+    {
+     "pair": "XAUUSD",
+     "side": "Buy",
+     "lot": 2.0,
+     "profit": -191.14,
+     "entry": 2592.16
+    }
+   ]
+  }
+ }
+};
+</script>
+<script>const NOW=new Date('2026-07-25T12:00:00');
+let LANG='fr',CURRENT=null,trapTimer=null;
+
+const I18N={
+ fr:{tag:"Private Trading Program",fId:"Identifiant",fPw:"Mot de passe",enter:"Accéder à mon espace",
+  foot:"Accès sécurisé — membres financés",funded:"Trader Financé",aum:"Capital total sous gestion",
+  allocated:"Capital alloué",profit:"Profit net",objective:"Rendement global",myAccounts:"Comptes de financement",
+  payoutWindow:"Fenêtre de retrait",daysMax:"jours restants (max)",eligible:"éligible",
+  payoutEligible:"Éligible au retrait",cycleRunning:"Cycle en cours",payoutHistory:"Historique des paiements",
+  payments:"paiements",totalPaid:"Total versé",paid:"Versé",reqOpen:"Demander un retrait",
+  reqLocked:"Retrait disponible à l'échéance",reqSent:"Demande de retrait envoyée — traitement 24-72h",
+  errCred:"Identifiant ou mot de passe incorrect",activated:"Activé le",maturity:"échéance",
+  greetMorning:"Bonjour",perfTitle:"Évolution du capital",days30:"30 jours",cumCapital:"Capital cumulé",statsTitle:"Statistiques de trading",rulesTitle:"Conformité aux règles",programActive:"Programme actif",tradesTitle:"Transactions récentes",mWinRate:"Taux de réussite",mTrades:"Transactions",mProfitFactor:"Facteur de profit",mDrawdown:"Drawdown actuel",mBestTrade:"Meilleur trade",mTradingDays:"Jours de trading",mAvgWin:"Gain moyen",mLots:"Volume total",wins:"gagnés",losses:"perdus",ruleSecurity:"Confidentialité — appareil unique autorisé",ruleCompliant:"Conforme",ruleDevices:"appareil autorisé · aucune anomalie détectée",ruleMaxDD:"Perte maximale (Max Drawdown)",ruleDailyDD:"Perte journalière",ruleUsed:"utilisé",ruleLimit:"limite",tPair:"Instrument",tSide:"Sens",tLot:"Lot",tEntry:"Entrée",tPnl:"Résultat",initialCap:"Capital initial",target:"Cible +10%",funding:"Financement",gain:"Rendement",amount:"Montant",date:"Date",status:"Statut",
+  lockTitle:"Compte Suspendu",lockSub:"Violation des règles de confidentialité",rejoin:"Rejoindre à nouveau Alpha Fundings",
+  lockBody:"Notre système de sécurité a détecté une violation des règles de confidentialité sur ce compte de financement. Plusieurs connexions simultanées ont été enregistrées depuis des appareils et des adresses IP situés dans différents pays. Conformément à l'Accord de Membre signé lors de l'activation, le compte est personnel et strictement non transférable. L'accès a été définitivement révoqué.",
+  rules:["Connexions simultanées depuis plusieurs appareils distincts","Adresses IP localisées dans différents pays","Partage d'identifiants avec des tiers (compte non transférable)"]},
+ en:{tag:"Private Trading Program",fId:"Login ID",fPw:"Password",enter:"Access my dashboard",
+  foot:"Secure access — funded members",funded:"Funded Trader",aum:"Total capital under management",
+  allocated:"Allocated capital",profit:"Net profit",objective:"Overall return",myAccounts:"Funding accounts",
+  payoutWindow:"Payout window",daysMax:"days remaining (max)",eligible:"eligible",
+  payoutEligible:"Eligible for payout",cycleRunning:"Cycle in progress",payoutHistory:"Payout history",
+  payments:"payments",totalPaid:"Total paid",paid:"Paid",reqOpen:"Request a payout",
+  reqLocked:"Payout available at maturity",reqSent:"Payout request sent — processing 24-72h",
+  errCred:"Incorrect login or password",activated:"Activated",maturity:"maturity",
+  greetMorning:"Welcome",perfTitle:"Capital growth",days30:"30 days",cumCapital:"Cumulative capital",statsTitle:"Trading statistics",rulesTitle:"Rules compliance",programActive:"Active program",tradesTitle:"Recent transactions",mWinRate:"Win rate",mTrades:"Transactions",mProfitFactor:"Profit factor",mDrawdown:"Current drawdown",mBestTrade:"Best trade",mTradingDays:"Trading days",mAvgWin:"Average win",mLots:"Total volume",wins:"wins",losses:"losses",ruleSecurity:"Confidentiality — single authorised device",ruleCompliant:"Compliant",ruleDevices:"authorised device · no anomaly detected",ruleMaxDD:"Maximum loss (Max Drawdown)",ruleDailyDD:"Daily loss",ruleUsed:"used",ruleLimit:"limit",tPair:"Instrument",tSide:"Side",tLot:"Lot",tEntry:"Entry",tPnl:"Result",initialCap:"Initial capital",target:"Target +10%",funding:"Funding",gain:"Return",amount:"Amount",date:"Date",status:"Status",
+  lockTitle:"Account Suspended",lockSub:"Confidentiality rules violation",rejoin:"Rejoin Alpha Fundings",
+  lockBody:"Our security system has detected a breach of the confidentiality rules on this funding account. Multiple simultaneous logins were recorded from devices and IP addresses located in different countries. In accordance with the Membership Agreement signed at activation, the account is personal and strictly non-transferable. Access has been permanently revoked.",
+  rules:["Simultaneous logins from multiple distinct devices","IP addresses located in different countries","Credential sharing with third parties (non-transferable account)"]}
+};
+const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt0=n=>n.toLocaleString('en-US',{maximumFractionDigits:0});
+const t=k=>I18N[LANG][k];
+const dstr=d=>new Date(d+'T00:00:00').toLocaleDateString(LANG==='fr'?'fr-FR':'en-US',{day:'2-digit',month:'short',year:'numeric'});
+
+function setLang(l){LANG=l;
+ document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===l));
+ document.querySelectorAll('[data-i]').forEach(e=>{const k=e.dataset.i;if(I18N[l][k])e.textContent=I18N[l][k];});
+ document.documentElement.lang=l; if(CURRENT&&document.getElementById('dashView').style.display==='block')renderDash();
+}
+
+// trap counter (localStorage)
+const cKey=id=>'afx_views_'+id;
+function addView(id){let c=parseInt(localStorage.getItem(cKey(id))||'0',10)+1;localStorage.setItem(cKey(id),c);return c;}
+function getViews(id){return parseInt(localStorage.getItem(cKey(id))||'0',10);}
+
+function doLogin(){
+ const id=document.getElementById('inpId').value.trim();
+ const pw=document.getElementById('inpPw').value;
+ const acc=ACCOUNTS[id];const err=document.getElementById('err');
+ if(!acc||acc.password!==pw){err.textContent=t('errCred');err.classList.add('show');setTimeout(()=>err.classList.remove('show'),2600);return;}
+ CURRENT={id,...acc};
+ // PIÈGE : 1re connexion → voir le compte 5 min → blocage.
+ //         Reconnexions suivantes → erreur directe.
+ if(acc.trapMode){
+   const prior=getViews(id);
+   if(prior>=1){
+     // déjà vu une fois → erreur directe, sans montrer le compte
+     showDash();
+     triggerLock();
+     return;
+   }
+   addView(id); // consomme la 1re (et seule) vue
+   showDash();
+   clearTimeout(trapTimer);
+   trapTimer=setTimeout(()=>{ if(CURRENT&&CURRENT.id===id) triggerLock(); }, acc.trapDelayMin*60*1000);
+   return;
+ }
+ showDash();
+}
+
+function showDash(silent){
+ document.getElementById('loginView').style.display='none';
+ document.getElementById('dashView').style.display='block';
+ renderDash();
+}
+
+function daysBetween(a,b){return Math.floor((b-a)/86400000);}
+
+function renderDash(){
+ const a=CURRENT;
+ document.getElementById('navName').textContent=a.fullName;
+ document.getElementById('avatar').textContent=a.fullName.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+ const hour=NOW.getHours();
+ document.getElementById('greetLine').innerHTML=`${t('greetMorning')}, <i>${a.firstName}</i>`;
+ document.getElementById('greetSub').textContent=LANG==='fr'?`Voici l'état de vos comptes de financement.`:`Here is the status of your funding accounts.`;
+
+ let tBal=0,tStart=0;a.accounts.forEach(c=>{tBal+=c.balance;tStart+=c.start;});
+ const profit=tBal-tStart,perf=profit/tStart*100;
+ document.getElementById('aumVal').innerHTML=fmt(tBal)+'<span class="cur">USD</span>';
+ document.getElementById('aumDelta').innerHTML=`<span class="hero-delta">▲ +${fmt(profit)} · +${perf.toFixed(2)}%</span>`;
+ document.getElementById('sAlloc').textContent=fmt0(tStart);
+ document.getElementById('sProfit').textContent='+'+fmt(profit);
+ document.getElementById('sObj').textContent='+'+perf.toFixed(2)+'%';
+
+ // accounts
+ const g=document.getElementById('acctGrid');g.innerHTML='';
+ a.accounts.forEach(c=>{
+   const p=c.balance-c.start,pp=p/c.start*100;
+   const prog=Math.min(100,Math.max(3,pp/10*100)); // progression vers +10%
+   g.innerHTML+=`<div class="glass card">
+     <div class="card-top">
+       <div><div class="acct-name">${c.type} <span class="sz">${c.size}</span></div><div class="acct-id">#${c.id}</div></div>
+       <div class="badge">Active</div>
+     </div>
+     <div class="acct-bal">${fmt(c.balance)} <span class="cur">USD</span></div>
+     <div class="acct-delta">+${fmt(p)} USD · +${pp.toFixed(2)}%</div>
+     <div class="track"><i style="width:${prog}%"></i></div>
+     <div class="card-foot">
+       <div><div class="k">${t('funding')}</div><div class="v">${fmt0(c.start)} USD</div></div>
+       <div style="text-align:right"><div class="k">${t('gain')}</div><div class="v" style="color:var(--green)">+${pp.toFixed(2)}%</div></div>
+     </div></div>`;
+ });
+
+ // payout window
+ const acq=new Date(a.acquisitionDate+'T00:00:00');
+ const limit=new Date(acq);limit.setDate(limit.getDate()+30);
+ const daysLeft=daysBetween(NOW,limit);
+ const elapsed=Math.max(0,Math.min(30,daysBetween(acq,NOW)));
+ const eligible=daysLeft<=0;
+ const ph=document.getElementById('payoutHero');
+ ph.innerHTML=`
+   <div class="hero-label" style="margin-bottom:14px">${t('payoutWindow')}</div>
+   <div class="pw-top">
+     <div class="pw-num ${eligible?'ok':''}">${eligible?'✓':daysLeft}</div>
+     <div class="pw-unit">${eligible?t('eligible'):t('daysMax')}</div>
+   </div>
+   <div class="pw-track"><i style="width:${eligible?100:(elapsed/30*100)}%"></i></div>
+   <div class="pw-status"><span class="d ${eligible?'green':'amber'}"></span>${eligible?t('payoutEligible'):t('cycleRunning')+' — J+'+elapsed+'/30'}</div>
+   <div class="pw-acq">${t('activated')} ${dstr(a.acquisitionDate)} · ${t('maturity')} ${dstr(limit.toISOString().slice(0,10))}</div>`;
+
+ // payout history
+ const hist=document.getElementById('payoutHistory');
+ if(a.payoutHistory&&a.payoutHistory.length){
+   const total=a.payoutHistory.reduce((s,p)=>s+p.amount,0);
+   const rows=a.payoutHistory.slice().reverse().map(p=>
+     `<div class="pt-r"><span class="no">${String(p.n).padStart(2,'0')}</span><span class="dt">${dstr(p.date)}</span><span class="am">+${fmt(p.amount)}</span><span class="st">${t('paid')}</span></div>`).join('');
+   hist.innerHTML=`<div class="sec-head"><h2>${t('payoutHistory')}</h2><span class="tag">${a.payoutHistory.length} ${t('payments')}</span></div>
+     <div class="glass ptable">
+       <div class="pt-h"><span>#</span><span>${t('date')}</span><span style="text-align:right">${t('amount')}</span><span style="text-align:right">${t('status')}</span></div>
+       ${rows}
+       <div class="pt-sum"><span class="l">${t('totalPaid')}</span><span class="v">+${fmt(total)} USD</span></div>
+     </div>`;
+ } else hist.innerHTML='';
+
+ // request btn
+ const rb=document.getElementById('reqBtn');
+ if(eligible){rb.textContent=t('reqOpen');rb.classList.remove('locked');}
+ else{rb.textContent=t('reqLocked');rb.classList.add('locked');}
+
+ // ── SECTIONS RICHES ──
+ renderChart(a);renderMetrics(a);renderRules(a);renderTrades(a);
+ document.getElementById('secPerf').textContent=t('perfTitle');
+ document.getElementById('perfRange').textContent=t('days30');
+ document.getElementById('secMetrics').textContent=t('statsTitle');
+ document.getElementById('secRules').textContent=t('rulesTitle');
+ document.getElementById('rulesTag').textContent=t('programActive');
+ document.getElementById('secTrades').textContent=t('tradesTitle');
+}
+
+function aggCurve(a){
+ const td=TRADING[a.id];const keys=Object.keys(td);const len=td[keys[0]].curve.length;
+ let agg=[];for(let i=0;i<len;i++){let s=0;keys.forEach(k=>s+=td[k].curve[i]);agg.push(s);}return agg;
+}
+
+function renderChart(a){
+ const curve=aggCurve(a);const svg=document.getElementById('equityChart');
+ const W=800,H=240,pad=8;const min=Math.min(...curve),max=Math.max(...curve);const range=max-min||1;
+ const stepX=W/(curve.length-1);
+ const pts=curve.map((v,i)=>[i*stepX,H-pad-((v-min)/range)*(H-pad*2)]);
+ const line=pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+ const area=line+` L${W} ${H} L0 ${H} Z`;
+ const last=curve[curve.length-1],first=curve[0];const gain=last-first,gpct=(gain/first*100);
+ svg.innerHTML=`<defs>
+     <linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(212,175,55,.35)"/><stop offset="100%" stop-color="rgba(212,175,55,0)"/></linearGradient>
+     <linearGradient id="gLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#B8860B"/><stop offset="50%" stop-color="#F4D03F"/><stop offset="100%" stop-color="#D4AF37"/></linearGradient>
+   </defs>
+   <path d="${area}" fill="url(#gArea)"/>
+   <path d="${line}" fill="none" stroke="url(#gLine)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+   <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="5" fill="#F4D03F"/>
+   <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="10" fill="#F4D03F" opacity="0.2"/>`;
+ const cv=document.getElementById('chartVal');cv.textContent=fmt(last)+' USD';cv.style.webkitTextFillColor='transparent';
+ document.getElementById('chartSub').textContent=`+${fmt(gain)} USD · +${gpct.toFixed(2)}% (30j)`;
+ document.getElementById('chartLegend').textContent=t('cumCapital');
+}
+
+function renderMetrics(a){
+ const td=TRADING[a.id];const keys=Object.keys(td);
+ let trades=0,wins=0,losses=0,pf=0,dd=0,best=0,tdays=0;
+ keys.forEach(k=>{const m=td[k].m;trades+=m.trades;wins+=m.wins;losses+=m.losses;pf+=m.profitFactor;dd=Math.max(dd,m.drawdown);best=Math.max(best,m.bestTrade);tdays=Math.max(tdays,m.tradingDays);});
+ const wr=(wins/(wins+losses)*100);pf=pf/keys.length;
+ const cards=[
+   {k:t('mWinRate'),v:wr.toFixed(1)+'%',cls:'pos',sub:`${wins} ${t('wins')} · ${losses} ${t('losses')}`},
+   {k:t('mTrades'),v:trades,cls:'',sub:'XAUUSD'},
+   {k:t('mProfitFactor'),v:pf.toFixed(2),cls:'gold',sub:''},
+   {k:t('mDrawdown'),v:dd.toFixed(2)+'%',cls:'',sub:t('ruleLimit')+' 10%'},
+   {k:t('mBestTrade'),v:'+'+fmt(best),cls:'pos',sub:'USD'},
+   {k:t('mTradingDays'),v:tdays,cls:'',sub:''},
+ ];
+ document.getElementById('metricsGrid').innerHTML=cards.map(c=>`<div class="glass metric"><div class="mk">${c.k}</div><div class="mv ${c.cls}">${c.v}</div>${c.sub?`<div class="msub">${c.sub}</div>`:''}</div>`).join('');
+}
+
+function renderRules(a){
+ const td=TRADING[a.id];let dd=0;Object.keys(td).forEach(k=>dd=Math.max(dd,td[k].m.drawdown));
+ const daily=dd*0.4;
+ const rules=[{name:t('ruleMaxDD'),used:dd,limit:10},{name:t('ruleDailyDD'),used:daily,limit:5}];
+ const secRow=`<div class="rule-row"><div class="rule-top"><span class="rule-name">${t('ruleSecurity')}</span><span class="rule-val safe">${t('ruleCompliant')}</span></div>
+   <div class="rule-track"><i class="g" style="width:100%"></i></div>
+   <div class="rule-foot">1 ${t('ruleDevices')}</div></div>`;
+ document.getElementById('rulesCard').innerHTML=secRow+rules.map(r=>{
+   const pct=r.used/r.limit*100;const safe=pct<60;
+   return `<div class="rule-row"><div class="rule-top"><span class="rule-name">${r.name}</span><span class="rule-val ${safe?'safe':'warn'}">${r.used.toFixed(2)}% / ${r.limit}%</span></div>
+     <div class="rule-track"><i class="${safe?'g':'a'}" style="width:${Math.min(pct,100)}%"></i><span class="rule-limit" style="left:100%"></span></div>
+     <div class="rule-foot">${r.used.toFixed(2)}% ${t('ruleUsed')} · ${t('ruleLimit')} ${r.limit}%</div></div>`;
+ }).join('');
+}
+
+function renderTrades(a){
+ const td=TRADING[a.id];let all=[];
+ Object.keys(td).forEach(k=>{td[k].trades.forEach(tr=>all.push(tr));});
+ all=all.slice(0,8);
+ document.getElementById('tradesCard').innerHTML=`<div class="tr-h"><span>${t('tPair')}</span><span>${t('tSide')}</span><span>${t('tLot')}</span><span>${t('tEntry')}</span><span style="text-align:right">${t('tPnl')}</span></div>
+   ${all.map(tr=>`<div class="tr-r"><span class="tr-pair"><span class="ico">Au</span>${tr.pair}</span><span class="tr-side ${tr.side.toLowerCase()}">${tr.side}</span><span class="tr-lot">${tr.lot.toFixed(2)}</span><span class="tr-entry">${tr.entry.toFixed(2)}</span><span class="tr-profit ${tr.profit>=0?'pos':'neg'}">${tr.profit>=0?'+':''}${fmt(tr.profit)}</span></div>`).join('')}`;
+}
+
+function requestPayout(){
+ if(document.getElementById('reqBtn').classList.contains('locked'))return;
+ const to=document.getElementById('toast');
+ document.getElementById('toastMsg').textContent='✓ '+t('reqSent');
+ to.classList.add('show');setTimeout(()=>to.classList.remove('show'),3600);
+}
+
+function logout(){
+ clearTimeout(trapTimer);CURRENT=null;
+ document.getElementById('dashView').style.display='none';
+ document.getElementById('loginView').style.display='flex';
+ document.getElementById('inpId').value='';document.getElementById('inpPw').value='';
+ document.getElementById('lock').style.display='none';
+ document.getElementById('dashView').classList.remove('blur');
+ document.body.classList.remove('no-scroll');
+}
+
+function triggerLock(){
+ document.getElementById('lockTitle').textContent=t('lockTitle');
+ document.getElementById('lockSub').textContent=t('lockSub');
+ document.getElementById('lockBody').textContent=t('lockBody');
+ document.getElementById('lockRules').innerHTML=t('rules').map(r=>`<li>${r}</li>`).join('');
+ document.getElementById('lockBtn').textContent=t('rejoin');
+ document.getElementById('dashView').classList.add('blur');
+ document.getElementById('lock').style.display='flex';
+ document.body.classList.add('no-scroll');
+}
+
+document.getElementById('inpPw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('inpId').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inpPw').focus();});
+</script>
+</body>
+</html>
