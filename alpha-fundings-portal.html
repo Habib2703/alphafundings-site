@@ -11,14 +11,16 @@
 <style>
 :root{
   --gold:#D4AF37; --gold-lite:#F4D03F; --gold-deep:#B8860B;
-  --black:#050505; --dark:#080c14; --dark2:#0d1220;
+  --black:#07080b; --dark:#0a0d13; --dark2:#0e1219;
+  --smoke1:#161a22; --smoke2:#101419; --smoke3:#0b0e13;
   --txt:#ffffff; --mut:rgba(255,255,255,.55); --mut2:rgba(255,255,255,.32);
   --green:#3ddc84; --green-deep:#1e9c5a; --red:#ff5a4d;
   --r-lg:1.5rem; --r-md:1.25rem; --r-sm:.85rem;
   --ease:cubic-bezier(.22,1,.36,1);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;background:var(--black);color:var(--txt);line-height:1.5;
+body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;
+  background:radial-gradient(150% 105% at 50% -5%,#1c1d22 0%,#131417 38%,#0c0d10 70%,#08090b 100%);background-attachment:fixed;color:var(--txt);line-height:1.5;
   overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh}
 .serif{font-family:'Playfair Display',serif}
 .gold-grad{background:linear-gradient(135deg,#D4AF37 0%,#F4D03F 50%,#B8860B 100%);
@@ -26,8 +28,9 @@ body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;backgroun
 .mono{font-variant-numeric:tabular-nums}
 ::selection{background:rgba(212,175,55,.28)}
 
-.glass{background:rgba(255,255,255,.03);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
-  border:1px solid rgba(255,255,255,.07);border-radius:var(--r-lg)}
+.glass{background:linear-gradient(170deg,rgba(255,255,255,.038),rgba(255,255,255,.012) 55%,rgba(0,0,0,.06));
+  border:1px solid rgba(255,255,255,.05);border-radius:var(--r-lg);
+  box-shadow:0 16px 44px rgba(0,0,0,.34)}
 .glass-gold{background:rgba(212,175,55,.05);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
   border:1px solid rgba(212,175,55,.22);border-radius:var(--r-lg)}
 .glass-dark{background:rgba(0,0,0,.45);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
@@ -36,8 +39,8 @@ body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;backgroun
 /* atmosphere */
 .atmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .orb{position:absolute;border-radius:50%;filter:blur(60px)}
-.orb1{width:600px;height:600px;top:-280px;right:-120px;background:radial-gradient(circle,rgba(212,175,55,.14),transparent 65%);animation:float1 20s var(--ease) infinite alternate}
-.orb2{width:520px;height:520px;bottom:-260px;left:-100px;background:radial-gradient(circle,rgba(212,175,55,.07),transparent 65%);animation:float2 24s var(--ease) infinite alternate}
+.orb1{width:600px;height:600px;top:-280px;right:-120px;background:radial-gradient(circle,rgba(212,175,55,.10),transparent 68%);animation:float1 20s var(--ease) infinite alternate}
+.orb2{width:520px;height:520px;bottom:-260px;left:-100px;background:radial-gradient(circle,rgba(212,175,55,.055),transparent 68%);animation:float2 24s var(--ease) infinite alternate}
 .orb3{width:400px;height:400px;top:40%;left:55%;background:radial-gradient(circle,rgba(30,120,90,.05),transparent 65%);animation:float1 28s var(--ease) infinite alternate}
 @keyframes float1{to{transform:translate(-60px,80px) scale(1.12)}}
 @keyframes float2{to{transform:translate(80px,-60px) scale(1.08)}}
@@ -255,6 +258,149 @@ body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;backgroun
 .req.locked::before{content:'';width:8px;height:8px;border-radius:50%;background:#ff5a4d;
   box-shadow:0 0 10px rgba(255,90,77,.9);animation:blink 1.4s ease-in-out infinite;flex:0 0 auto}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.pulse-btn{animation:btnPulse 2.4s ease-in-out infinite}
+@keyframes btnPulse{0%,100%{box-shadow:0 14px 34px rgba(212,175,55,.28)}
+  50%{box-shadow:0 14px 34px rgba(212,175,55,.28),0 0 0 8px rgba(212,175,55,.09)}}
+
+
+/* ══ AVIS D'OPÉRATIONS ══ */
+.notice{max-width:540px;width:100%;position:relative;isolation:isolate;
+  background:
+    radial-gradient(150% 90% at 50% -10%,rgba(58,54,48,.28),transparent 55%),
+    linear-gradient(172deg,#23242a 0%,#191a1f 30%,#131418 62%,#0e0f12 100%);
+  border:1px solid rgba(255,255,255,.055);border-radius:26px;overflow:hidden;
+  box-shadow:0 40px 90px rgba(0,0,0,.55),0 12px 34px rgba(0,0,0,.4);
+  animation:noticeIn 1s var(--ease) both}
+@keyframes noticeIn{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+.notice::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;z-index:3;
+  background:linear-gradient(90deg,transparent 12%,rgba(196,172,112,.42) 50%,transparent 88%)}
+.notice::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;opacity:1;
+  mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E"),
+    radial-gradient(130% 95% at 50% 0%,transparent 45%,rgba(0,0,0,.45) 100%)}
+.notice>*{position:relative;z-index:2}
+
+/* en-tête documentaire */
+.notice-head{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:19px 28px;border-bottom:1px solid rgba(255,255,255,.055);
+  background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(0,0,0,.06))}
+.notice-kind{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.26em;
+  color:#e6cd7e;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.notice-kind::before{content:'';width:5px;height:5px;border-radius:50%;background:#e6cd7e;
+  box-shadow:0 0 12px rgba(230,205,126,.75);animation:breathe 3.4s ease-in-out infinite;flex:0 0 auto}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.3}}
+.notice-ref{font-size:9px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.26);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.notice-body{padding:36px 28px 28px}
+
+/* titre — Playfair droit, gras, serré */
+.notice-body h2{font-family:'Playfair Display',serif;font-style:normal;font-weight:700;
+  font-size:clamp(30px,6.4vw,39px);line-height:1.08;letter-spacing:-1px;
+  color:#f2f0ee;margin-bottom:15px;max-width:15ch;
+  text-shadow:0 1px 24px rgba(0,0,0,.5)}
+.notice-lede{font-size:14px;line-height:1.8;color:rgba(236,233,228,.56);font-weight:300;
+  margin-bottom:34px;max-width:46ch;letter-spacing:.005em}
+
+/* registre d'étapes */
+.ledger{position:relative;margin-bottom:6px}
+.lrow{position:relative;display:grid;grid-template-columns:28px 1fr auto;align-items:start;
+  gap:16px;padding:15px 0;animation:lrowIn .7s var(--ease) both}
+@keyframes lrowIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.lrow:nth-child(1){animation-delay:.12s}.lrow:nth-child(2){animation-delay:.22s}
+.lrow:nth-child(3){animation-delay:.32s}.lrow:nth-child(4){animation-delay:.42s}
+.lrow::after{content:'';position:absolute;left:13.5px;top:36px;bottom:-15px;width:1px;
+  background:rgba(255,255,255,.06)}
+.lrow:last-child::after{display:none}
+.lrow.done::after{background:linear-gradient(180deg,rgba(126,224,168,.35),rgba(255,255,255,.06))}
+
+.lmark{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;font-size:12px;font-weight:700;
+  background:linear-gradient(160deg,#1a1f27,#0f1318);
+  transition:all .6s var(--ease)}
+.lrow.done .lmark{color:#7ee0a8;border:1px solid rgba(126,224,168,.42);
+  box-shadow:0 0 0 5px rgba(126,224,168,.045),0 0 18px rgba(126,224,168,.12)}
+.lrow.pending .lmark{border:1.5px solid rgba(255,255,255,.16)}
+.lrow.pending .lmark::after{content:'';width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.3)}
+
+.lstage{font-size:8.5px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(255,255,255,.22);display:block;margin-bottom:6px}
+.ltext{font-size:14px;line-height:1.4;font-weight:500;letter-spacing:-.1px;
+  transition:color .6s var(--ease)}
+.lrow.done .ltext{color:rgba(242,240,238,.88)}
+.lrow.pending .ltext{color:rgba(236,233,228,.36)}
+.lstate{font-size:8.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  white-space:nowrap;padding-top:15px}
+.lrow.done .lstate{color:#7ee0a8}
+.lrow.pending .lstate{color:rgba(255,255,255,.24)}
+
+/* pied */
+.notice-foot{margin-top:30px;padding-top:26px;border-top:1px solid rgba(255,255,255,.055)}
+.foot-note{font-size:13px;line-height:1.78;color:rgba(236,233,228,.5);font-weight:300;
+  max-width:46ch}
+.foot-note b{color:rgba(255,255,255,.85);font-weight:600}
+
+.notice-cta{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;
+  text-decoration:none;padding:18px;border-radius:14px;margin-top:24px;
+  font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#1a1408;
+  background:linear-gradient(135deg,#EBD68A,#D0AC48 50%,#B08D2E);
+  box-shadow:0 20px 46px rgba(208,172,72,.2),0 6px 16px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.42);
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease);text-align:center}
+.notice-cta:hover{transform:translateY(-2px);box-shadow:0 28px 62px rgba(208,172,72,.3),0 8px 20px rgba(0,0,0,.34)}
+.notice-cta:active{transform:translateY(0)}
+.notice-cta svg{width:15px;height:15px;stroke-width:2.6;flex:0 0 auto}
+
+.notice-stamp{display:flex;justify-content:space-between;gap:12px;margin-top:22px;padding-top:16px;
+  border-top:1px solid rgba(255,255,255,.045);
+  font-size:8.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(236,233,228,.24);font-variant-numeric:tabular-nums}
+
+@media(max-width:540px){
+  .notice{border-radius:20px}
+  .notice-head{padding:16px 20px}.notice-body{padding:30px 20px 24px}
+  .notice-ref{display:none}
+  .lstate{font-size:8px}
+  .lrow{grid-template-columns:26px 1fr auto;gap:13px}
+}
+@media (prefers-reduced-motion: reduce){
+  .notice,.lrow{animation:none}.notice-kind::before{animation:none}
+}
+
 /* section */
 .sec-head{display:flex;align-items:center;gap:13px;margin:36px 4px 16px}
 .sec-head h2{font-family:'Playfair Display',serif;font-style:italic;font-size:26px;font-weight:700}
@@ -288,8 +434,11 @@ body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;backgroun
 .req.locked:hover{transform:none}
 
 /* lock */
-.lock{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:24px;
-  background:rgba(5,5,5,.65);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);animation:fade .5s var(--ease) both}
+.lock{position:fixed;inset:0;z-index:200;display:none;align-items:flex-start;justify-content:center;
+  padding:max(24px,env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom));
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  background:radial-gradient(120% 90% at 50% 25%,rgba(20,21,25,.78),rgba(8,9,11,.9));
+  backdrop-filter:blur(24px) saturate(.95);-webkit-backdrop-filter:blur(24px) saturate(.95);animation:fade .5s var(--ease) both}
 .lock-card{max-width:480px;width:100%;padding:42px 38px;text-align:center;
   background:linear-gradient(180deg,rgba(26,12,12,.92),rgba(10,6,6,.96));
   border:1px solid rgba(255,90,77,.3);border-radius:var(--r-lg);
@@ -309,7 +458,8 @@ body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;backgroun
 .lock-btn:hover{transform:translateY(-2px)}
 .lock-ref{margin-top:18px;font:500 10px 'Outfit';color:var(--mut2);letter-spacing:.5px}
 .dash.blur{filter:blur(11px) saturate(.55) brightness(.65);pointer-events:none;user-select:none;transition:filter .9s var(--ease)}
-body.no-scroll{overflow:hidden}
+body.no-scroll{overflow:hidden;position:fixed;width:100%}
+.lock>*{margin:auto 0}
 
 /* toast */
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(90px);z-index:120;padding:16px 26px;border-radius:var(--r-md);font-size:14px;font-weight:500;
@@ -451,16 +601,24 @@ body.no-scroll{overflow:hidden}
   <button class="req" id="reqBtn" onclick="requestPayout()"></button>
 </div>
 
-<!-- LOCK -->
+<!-- OPERATIONS NOTICE -->
 <div class="lock" id="lock">
-  <div class="lock-card">
-    <div class="lock-badge">⛔</div>
-    <h2 id="lockTitle">Compte Suspendu</h2>
-    <div class="sub" id="lockSub">Violation des règles de confidentialité</div>
-    <div class="lock-body" id="lockBody"></div>
-    <ul class="lock-rules" id="lockRules"></ul>
-    <a class="lock-btn" id="lockBtn" href="https://alphafundings.com"></a>
-    <div class="lock-ref">Réf. AF-RISK-2026-0473</div>
+  <div class="notice" role="dialog" aria-modal="true" aria-labelledby="maintTitle">
+
+    <div class="notice-head">
+      <span class="notice-kind" id="maintTag">System notice</span>
+      <span class="notice-ref" id="maintRef">AF·OPS·2026·1180</span>
+    </div>
+
+    <div class="notice-body">
+      <h2 id="maintTitle">Restoration in progress</h2>
+      <p class="notice-lede" id="maintBody"></p>
+
+      <div class="ledger" id="maintSteps"></div>
+
+      <div class="notice-foot" id="maintFoot"></div>
+    </div>
+
   </div>
 </div>
 
@@ -473,7 +631,8 @@ body.no-scroll{overflow:hidden}
     firstName: "Michel",
     objective: 100000,
     acquisitionDate: "2026-07-06",
-    trapMode: true,
+    trapMode: false,
+    maintenanceMode: true,
     trapDelayMin: 5,
     trapMaxViews: 3,
     payoutHistory: [],
@@ -489,6 +648,7 @@ body.no-scroll{overflow:hidden}
     objective: 100000,
     acquisitionDate: "2026-01-09",
     trapMode: false,
+    maintenanceMode: true,
     trapDelayMin: 10,
     trapMaxViews: 3,
     payoutHistory: [
@@ -945,7 +1105,18 @@ const I18N={
   payments:"paiements",totalPaid:"Total versé",paid:"Versé",reqOpen:"Demander un retrait",
   reqLocked:"Retrait disponible à l'échéance",reqSent:"Demande de retrait envoyée — traitement 24-72h",
   errCred:"Identifiant ou mot de passe incorrect",activated:"Activé le",maturity:"échéance",
-  greetMorning:"Bonjour",syncedAgo:"Synchronisé il y a",over30d:"sur 30 jours",marketOpen:"Marché ouvert",marketClosed:"Marché fermé — week-end",marketClosed:"Marché fermé · week-end",live:"En direct",uDays:"Jours",uHours:"Heures",uMin:"Minutes",uSec:"Secondes",perfTitle:"Évolution du capital",days30:"30 jours",cumCapital:"Capital cumulé",statsTitle:"Statistiques de trading",rulesTitle:"Conformité aux règles",programActive:"Programme actif",tradesTitle:"Transactions récentes",mWinRate:"Taux de réussite",mTrades:"Transactions",mProfitFactor:"Facteur de profit",mDrawdown:"Drawdown actuel",mBestTrade:"Meilleur trade",mTradingDays:"Jours de trading",mAvgWin:"Gain moyen",mLots:"Volume total",wins:"gagnés",losses:"perdus",ruleSecurity:"Confidentialité — appareil unique autorisé",ruleCompliant:"Conforme",ruleDevices:"appareil autorisé · aucune anomalie détectée",ruleMaxDD:"Perte maximale (Max Drawdown)",ruleDailyDD:"Perte journalière",ruleUsed:"utilisé",ruleLimit:"limite",tPair:"Instrument",tSide:"Sens",tLot:"Lot",tEntry:"Entrée",tPnl:"Résultat",initialCap:"Capital initial",target:"Cible +10%",funding:"Financement",gain:"Rendement",amount:"Montant",date:"Date",status:"Statut",
+  greetMorning:"Bonjour",mTag:"Procédure de réintégration",
+  mTitle:"Réintégration en cours",
+  mBody:"À la suite de la suspension de votre compte et de l'examen de votre dossier, une décision de levée a été rendue. Vos comptes de financement font l'objet d'une procédure de réintégration : les données d'origine sont restaurées à l'identique, sans remise à zéro. Vos soldes et votre historique sont intégralement conservés.",
+  mSteps:["Dossier examiné · levée validée","Données d'origine restaurées","Vérification finale des comptes","Réintégration effective"],
+  mStage:"Étape",mIssued:"Avis émis le",mDone:"Validée",mPending:"En attente",
+  mNoteRunning:"Aucune action n'est requise de votre part à ce stade. La procédure suit son cours automatiquement.",
+  mTagDone:"Réintégration validée",
+  mTitleDone:"Compte réintégré",
+  mBodyDone:"La levée de suspension est effective. Vos comptes de financement ont été réintégrés à l'identique, avec l'ensemble de vos soldes et de votre historique. Il ne reste plus qu'à finaliser votre souscription pour rouvrir l'accès à votre back-office.",
+  mNoteDone:"Vos soldes et votre historique sont conservés en l'état. <b>Finalisez votre souscription</b> pour rouvrir votre back-office.",
+  mCta:"Souscrire pour rouvrir mon back-office",
+  syncedAgo:"Synchronisé il y a",over30d:"sur 30 jours",marketOpen:"Marché ouvert",marketClosed:"Marché fermé — week-end",marketClosed:"Marché fermé · week-end",live:"En direct",uDays:"Jours",uHours:"Heures",uMin:"Minutes",uSec:"Secondes",perfTitle:"Évolution du capital",days30:"30 jours",cumCapital:"Capital cumulé",statsTitle:"Statistiques de trading",rulesTitle:"Conformité aux règles",programActive:"Programme actif",tradesTitle:"Transactions récentes",mWinRate:"Taux de réussite",mTrades:"Transactions",mProfitFactor:"Facteur de profit",mDrawdown:"Drawdown actuel",mBestTrade:"Meilleur trade",mTradingDays:"Jours de trading",mAvgWin:"Gain moyen",mLots:"Volume total",wins:"gagnés",losses:"perdus",ruleSecurity:"Confidentialité — appareil unique autorisé",ruleCompliant:"Conforme",ruleDevices:"appareil autorisé · aucune anomalie détectée",ruleMaxDD:"Perte maximale (Max Drawdown)",ruleDailyDD:"Perte journalière",ruleUsed:"utilisé",ruleLimit:"limite",tPair:"Instrument",tSide:"Sens",tLot:"Lot",tEntry:"Entrée",tPnl:"Résultat",initialCap:"Capital initial",target:"Cible +10%",funding:"Financement",gain:"Rendement",amount:"Montant",date:"Date",status:"Statut",
   lockTitle:"Compte Suspendu",lockSub:"Violation des règles de confidentialité",rejoin:"Rejoindre à nouveau Alpha Fundings",
   lockBody:"Notre système de sécurité a détecté une violation des règles de confidentialité sur ce compte de financement. Plusieurs connexions simultanées ont été enregistrées depuis des appareils et des adresses IP situés dans différents pays. Conformément à l'Accord de Membre signé lors de l'activation, le compte est personnel et strictement non transférable. L'accès a été définitivement révoqué.",
   rules:["Connexions simultanées depuis plusieurs appareils distincts","Adresses IP localisées dans différents pays","Partage d'identifiants avec des tiers (compte non transférable)"]},
@@ -957,7 +1128,18 @@ const I18N={
   payments:"payments",totalPaid:"Total paid",paid:"Paid",reqOpen:"Request a payout",
   reqLocked:"Payout available at maturity",reqSent:"Payout request sent — processing 24-72h",
   errCred:"Incorrect login or password",activated:"Activated",maturity:"maturity",
-  greetMorning:"Welcome",syncedAgo:"Synced",over30d:"over 30 days",marketOpen:"Market open",marketClosed:"Market closed — weekend",marketClosed:"Market closed · weekend",live:"Live",uDays:"Days",uHours:"Hours",uMin:"Minutes",uSec:"Seconds",perfTitle:"Capital growth",days30:"30 days",cumCapital:"Cumulative capital",statsTitle:"Trading statistics",rulesTitle:"Rules compliance",programActive:"Active program",tradesTitle:"Recent transactions",mWinRate:"Win rate",mTrades:"Transactions",mProfitFactor:"Profit factor",mDrawdown:"Current drawdown",mBestTrade:"Best trade",mTradingDays:"Trading days",mAvgWin:"Average win",mLots:"Total volume",wins:"wins",losses:"losses",ruleSecurity:"Confidentiality — single authorised device",ruleCompliant:"Compliant",ruleDevices:"authorised device · no anomaly detected",ruleMaxDD:"Maximum loss (Max Drawdown)",ruleDailyDD:"Daily loss",ruleUsed:"used",ruleLimit:"limit",tPair:"Instrument",tSide:"Side",tLot:"Lot",tEntry:"Entry",tPnl:"Result",initialCap:"Initial capital",target:"Target +10%",funding:"Funding",gain:"Return",amount:"Amount",date:"Date",status:"Status",
+  greetMorning:"Welcome",mTag:"Reinstatement notice",
+  mTitle:"Reinstatement in progress",
+  mBody:"Following the suspension of your account and the review of your case, a release decision has been issued. Your funding accounts are now being reinstated: the original data is restored exactly as it was, with no reset. Your balances and full trading history are preserved in their entirety.",
+  mSteps:["Case reviewed · release approved","Original account data restored","Final account verification","Reinstatement effective"],
+  mStage:"Stage",mIssued:"Notice issued",mDone:"Cleared",mPending:"Pending",
+  mNoteRunning:"No action is required from you at this stage. The procedure is running automatically.",
+  mTagDone:"Reinstatement approved",
+  mTitleDone:"Account reinstated",
+  mBodyDone:"The suspension has been lifted. Your funding accounts have been reinstated exactly as they were, with all balances and trading history preserved. All that remains is to complete your subscription to reopen access to your back-office.",
+  mNoteDone:"Your balances and history are preserved as they were. <b>Complete your subscription</b> to reopen your back-office.",
+  mCta:"Subscribe to reopen my back-office",
+  syncedAgo:"Synced",over30d:"over 30 days",marketOpen:"Market open",marketClosed:"Market closed — weekend",marketClosed:"Market closed · weekend",live:"Live",uDays:"Days",uHours:"Hours",uMin:"Minutes",uSec:"Seconds",perfTitle:"Capital growth",days30:"30 days",cumCapital:"Cumulative capital",statsTitle:"Trading statistics",rulesTitle:"Rules compliance",programActive:"Active program",tradesTitle:"Recent transactions",mWinRate:"Win rate",mTrades:"Transactions",mProfitFactor:"Profit factor",mDrawdown:"Current drawdown",mBestTrade:"Best trade",mTradingDays:"Trading days",mAvgWin:"Average win",mLots:"Total volume",wins:"wins",losses:"losses",ruleSecurity:"Confidentiality — single authorised device",ruleCompliant:"Compliant",ruleDevices:"authorised device · no anomaly detected",ruleMaxDD:"Maximum loss (Max Drawdown)",ruleDailyDD:"Daily loss",ruleUsed:"used",ruleLimit:"limit",tPair:"Instrument",tSide:"Side",tLot:"Lot",tEntry:"Entry",tPnl:"Result",initialCap:"Initial capital",target:"Target +10%",funding:"Funding",gain:"Return",amount:"Amount",date:"Date",status:"Status",
   lockTitle:"Account Suspended",lockSub:"Confidentiality rules violation",rejoin:"Rejoin Alpha Fundings",
   lockBody:"Our security system has detected a breach of the confidentiality rules on this funding account. Multiple simultaneous logins were recorded from devices and IP addresses located in different countries. In accordance with the Membership Agreement signed at activation, the account is personal and strictly non-transferable. Access has been permanently revoked.",
   rules:["Simultaneous logins from multiple distinct devices","IP addresses located in different countries","Credential sharing with third parties (non-transferable account)"]}
@@ -970,7 +1152,8 @@ const dstr=d=>new Date(d+'T00:00:00').toLocaleDateString(LANG==='fr'?'fr-FR':'en
 function setLang(l){LANG=l;
  document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===l));
  document.querySelectorAll('[data-i]').forEach(e=>{const k=e.dataset.i;if(I18N[l][k])e.textContent=I18N[l][k];});
- document.documentElement.lang=l; if(CURRENT&&document.getElementById('dashView').style.display==='block')renderDash();
+ document.documentElement.lang=l; if(CURRENT&&document.getElementById('dashView').style.display==='block'){renderDash();
+   if(document.getElementById('lock').style.display==='flex')triggerMaintenance();}
 }
 
 // trap counter (localStorage)
@@ -993,8 +1176,12 @@ function doLogin(){
  if(!found||!pwOk){err.textContent=t('errCred');err.classList.add('show');setTimeout(()=>err.classList.remove('show'),2600);return;}
  const id=found.key, acc=found.acc;
  CURRENT={id,...acc};
- // PIÈGE : 1re connexion → voir le compte 5 min → blocage.
- //         Reconnexions suivantes → erreur directe.
+ // MAINTENANCE : page floutée + message d'attente, dès la connexion
+ if(acc.maintenanceMode){
+   showDash();
+   triggerMaintenance();
+   return;
+ }
  if(acc.trapMode){
    const prior=getViews(id);
    if(prior>=1){
@@ -1400,7 +1587,7 @@ function requestPayout(){
 }
 
 function logout(){
- clearTimeout(trapTimer);clearInterval(cdTimer);clearInterval(goldTimer);clearInterval(syncTimer);CURRENT=null;
+ clearTimeout(trapTimer);clearInterval(cdTimer);clearInterval(goldTimer);clearInterval(syncTimer);clearInterval(maintTimer);CURRENT=null;
  document.getElementById('dashView').style.display='none';
  document.getElementById('loginView').style.display='flex';
  document.getElementById('inpId').value='';document.getElementById('inpPw').value='';
@@ -1409,16 +1596,75 @@ function logout(){
  document.body.classList.remove('no-scroll');
 }
 
-function triggerLock(){
- document.getElementById('lockTitle').textContent=t('lockTitle');
- document.getElementById('lockSub').textContent=t('lockSub');
- document.getElementById('lockBody').textContent=t('lockBody');
- document.getElementById('lockRules').innerHTML=t('rules').map(r=>`<li>${r}</li>`).join('');
- document.getElementById('lockBtn').textContent=t('rejoin');
+function triggerLock(){return triggerMaintenance();}
+
+// ═══════════════════════════════════════════════════════════
+//  DATE D'ÉMISSION DE L'AVIS  —  modifier ici si besoin
+//  Format : année, mois-1, jour, heure, minute   (heure GMT)
+//  Le calcul est absolu : identique sur tout appareil,
+//  aucune remise à zéro possible.
+// ═══════════════════════════════════════════════════════════
+const NOTICE_ISSUED = Date.UTC(2026, 7, 3, 2, 38);   // 3 août 2026, 02:38 GMT
+
+let maintTimer=null;
+const MAINT_DAYS=[0,10,20,21];
+
+// Aperçu : ajouter ?state=final à l'adresse pour voir l'écran de fin
+const PREVIEW_FINAL=/[?&]state=final/.test(location.search);
+
+function triggerMaintenance(){
+ const id=CURRENT?CURRENT.id:'x';
+ const t0=NOTICE_ISSUED;
+ const due=MAINT_DAYS.map(d=>t0+d*86400000);
+
+ // référence de dossier propre au compte + horodatage d'émission
+ let ref=0; for(let i=0;i<id.length;i++)ref=(ref*31+id.charCodeAt(i))>>>0;
+ document.getElementById('maintRef').textContent=
+   'AF·OPS·'+new Date(t0).getFullYear()+'·'+String(ref%9000+1000);
+ const issued=new Date(t0);
+ const iss=issued.toLocaleDateString(LANG==='fr'?'fr-FR':'en-GB',{day:'2-digit',month:'short',year:'numeric'})
+   +' · '+String(issued.getUTCHours()).padStart(2,'0')+':'+String(issued.getUTCMinutes()).padStart(2,'0')+' GMT';
+
  document.getElementById('dashView').classList.add('blur');
  document.getElementById('lock').style.display='flex';
  document.body.classList.add('no-scroll');
+
+ const paint=()=>{
+  const now=Date.now();
+  const complete=PREVIEW_FINAL||now>=due[3];
+  const labels=t('mSteps');
+
+  document.getElementById('maintTag').textContent=complete?t('mTagDone'):t('mTag');
+  document.getElementById('maintTitle').textContent=complete?t('mTitleDone'):t('mTitle');
+  document.getElementById('maintBody').textContent=complete?t('mBodyDone'):t('mBody');
+
+  document.getElementById('maintSteps').innerHTML=due.map((ts,i)=>{
+    const done=complete||now>=ts;
+    return `<div class="lrow ${done?'done':'pending'}">
+      <span class="lmark">${done?'✓':''}</span>
+      <span><span class="lstage">${t('mStage')} ${String(i+1).padStart(2,'0')}</span>
+      <span class="ltext">${labels[i]}</span></span>
+      <span class="lstate">${done?t('mDone'):t('mPending')}</span>
+    </div>`;
+  }).join('');
+
+  const foot=document.getElementById('maintFoot');
+  const stamp=`<div class="notice-stamp"><span>${t('mIssued')}</span><span>${iss}</span></div>`;
+  if(!complete){
+    foot.innerHTML=`<p class="foot-note">${t('mNoteRunning')}</p>${stamp}`;
+    return;
+  }
+  foot.innerHTML=`<p class="foot-note">${t('mNoteDone')}</p>
+    <a class="notice-cta" href="https://alphafundings.com">${t('mCta')}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>${stamp}`;
+  clearInterval(maintTimer);
+ };
+
+ paint();
+ clearInterval(maintTimer);
+ maintTimer=setInterval(paint,30000);
 }
+
 
 document.getElementById('inpPw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('inpId').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inpPw').focus();});
