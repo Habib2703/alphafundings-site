@@ -262,6 +262,8 @@ body{font-family:'Outfit',sans-serif;background:var(--black);color:white;overflo
     <span class="nav-lnk" onclick="showPage('home');sTo('challenges')">Challenges</span>
     <span class="nav-lnk" onclick="showPage('home');sTo('instant')">Instant Funding</span>
     <span class="nav-lnk" onclick="showPage('home');sTo('how')">Comment ça marche</span>
+  <a href="/espace-membre.html" class="nav-lnk" style="text-decoration:none;">Espace membre</a>
+  <a href="/assistance.html" class="nav-lnk" style="text-decoration:none;">Assistance</a>
     <span class="nav-lnk" onclick="showPage('home');sTo('scaling')">Scaling</span>
     <span class="nav-lnk" onclick="showPage('home');sTo('faq')">FAQ</span>
   </div>
@@ -279,12 +281,14 @@ body{font-family:'Outfit',sans-serif;background:var(--black);color:white;overflo
 </nav>
 
 <!-- MOBILE MENU -->
-<div id="mob-menu" class="fixed left-0 right-0 z-40 bg-black/99 border-b border-white/10 px-6 py-5 flex-col gap-3 hidden" style="top:64px;">
+<div id="mob-menu" class="fixed left-0 right-0 px-6 py-5 flex-col gap-3 hidden" style="top:64px;z-index:590;background:linear-gradient(180deg,#0d0f14 0%,#08090c 100%);border-bottom:1px solid rgba(212,175,55,.18);box-shadow:0 24px 60px rgba(0,0,0,.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);">
   <span class="nav-lnk text-sm block py-3 border-b border-white/5" onclick="closeMob();showPage('home');sTo('challenges')">Challenges</span>
   <span class="nav-lnk text-sm block py-3 border-b border-white/5" onclick="closeMob();showPage('home');sTo('instant')">Instant Funding</span>
   <span class="nav-lnk text-sm block py-3 border-b border-white/5" onclick="closeMob();showPage('home');sTo('how')">Comment ça marche</span>
   <span class="nav-lnk text-sm block py-3 border-b border-white/5" onclick="closeMob();showPage('home');sTo('scaling')">Scaling Plan</span>
   <span class="nav-lnk text-sm block py-3 border-b border-white/5" onclick="closeMob();showPage('home');sTo('faq')">FAQ</span>
+  <a href="/espace-membre.html" class="nav-lnk text-sm block py-3 border-b border-white/5" style="text-decoration:none;">Espace membre</a>
+  <a href="/assistance.html" class="nav-lnk text-sm block py-3 border-b border-white/5" style="text-decoration:none;">Assistance</a>
   <button onclick="closeMob();showPage('home');sTo('challenges')" class="btn-gold w-full py-4 rounded-xl text-xs mt-2 ripple-host">Get Funded Now</button>
 </div>
 
@@ -1112,7 +1116,7 @@ const S = {
   isMultiIF:false, ifItems:[], orderId:'', payAmount:0, payWallet:''
 };
 const BACKEND_URL = 'https://alphafundings-backend.onrender.com';
-const PROMO_CODES = { 'HABD45': 5, 'NEW30': 30 };
+const PROMO_CODES = { 'HABD45': 5 };
 const IF_PRICES = { '50':703, '100':1199, '200':1759 };
 const IF_COUNTS = { '50':0, '100':0, '200':0 };
 
@@ -1373,7 +1377,7 @@ async function doRegister(){
 }
 function closeWelcome(){ document.getElementById('modal-welcome').classList.remove('on'); }
 function openRealBackOffice(){
-  window.open(BACKEND_URL+'/?oid='+encodeURIComponent(S.orderId),'_blank');
+  window.open('/espace-membre.html?oid='+encodeURIComponent(S.orderId),'_blank');
 }
 function copyOrderId(){
   navigator.clipboard?.writeText(S.orderId);
@@ -1460,31 +1464,108 @@ setInterval(()=>{
 /* ─── VERIFY TX ─── */
 function verifyTx(){
   const btn=document.getElementById('verify-btn');
-  btn.innerHTML='<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing blockchain hash...';
-  btn.style.opacity='.7';
-  setTimeout(()=>{ btn.innerHTML='<i class="fas fa-hourglass-half mr-2"></i>Awaiting blockchain confirmation...'; btn.style.opacity='1'; },2500);
+  if(btn.dataset.done) return;
+  btn.dataset.done='1';
+  btn.innerHTML='<i class="fas fa-spinner fa-spin mr-2"></i>Analyse de la transaction...';
+  btn.style.opacity='.7'; btn.style.pointerEvents='none';
+
+  setTimeout(async ()=>{
+    let confirmed=false;
+    try{
+      if(S.orderId && !S.orderId.startsWith('AF-LOCAL-')){
+        const r=await fetch(BACKEND_URL+'/api/order/'+encodeURIComponent(S.orderId)+'/check',{method:'POST'});
+        if(r.ok){ const d=await r.json(); confirmed = d.status && d.status!=='PENDING_PAYMENT'; }
+      }
+    }catch(e){}
+
+    const box=document.createElement('div');
+    box.style.cssText='background:linear-gradient(135deg,rgba(34,197,94,.09),rgba(34,197,94,.03));border:1px solid rgba(34,197,94,.32);border-radius:1.25rem;padding:26px;margin-top:4px;';
+    box.innerHTML=
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">'+
+        '<div style="width:38px;height:38px;border-radius:11px;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.35);display:flex;align-items:center;justify-content:center;flex:0 0 auto;">'+
+          '<i class="fas fa-check" style="color:#22c55e;font-size:15px;"></i></div>'+
+        '<div><div style="font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#22c55e;">'+
+          (confirmed?'Paiement confirmé':'Demande enregistrée')+'</div>'+
+        '<div style="font-size:11px;color:#9ca3af;margin-top:3px;">Dossier '+(S.orderId||'—')+'</div></div>'+
+      '</div>'+
+      '<p style="font-size:12.5px;line-height:1.75;color:#9ca3af;font-weight:300;margin-bottom:18px;">'+
+        (confirmed
+          ? 'Votre règlement a été détecté sur la blockchain. Votre compte est en cours de création et vos identifiants vous parviendront par courriel dans quelques minutes.'
+          : 'Votre transaction sera confirmée sur la blockchain sous <strong style="color:#fff;font-weight:600;">10 à 30 minutes</strong>. Dès validation, vos identifiants MT5 vous seront envoyés automatiquement par courriel.')+
+      '</p>'+
+      '<div style="border-top:1px solid rgba(255,255,255,.07);padding-top:16px;">'+
+        '<div style="display:flex;gap:10px;font-size:11.5px;color:#9ca3af;line-height:1.6;padding:5px 0;">'+
+          '<span style="color:#D4AF37;">1.</span><span>Conservez votre identifiant : <strong style="color:#fff;">'+(S.orderId||'—')+'</strong></span></div>'+
+        '<div style="display:flex;gap:10px;font-size:11.5px;color:#9ca3af;line-height:1.6;padding:5px 0;">'+
+          '<span style="color:#D4AF37;">2.</span><span>Vous recevrez deux courriels : les règles du programme, puis vos accès.</span></div>'+
+        '<div style="display:flex;gap:10px;font-size:11.5px;color:#9ca3af;line-height:1.6;padding:5px 0;">'+
+          '<span style="color:#D4AF37;">3.</span><span>Pensez à vérifier votre dossier de courriers indésirables.</span></div>'+
+      '</div>'+
+      '<button onclick="openRealBackOffice()" class="w-full btn-outline py-3 rounded-xl text-xs" style="margin-top:18px;">'+
+        '<i class="fas fa-external-link-alt mr-2"></i>Suivre mon dossier</button>'+
+      '<a href="/assistance.html" style="display:block;text-align:center;margin-top:12px;font-size:11.5px;color:#6b7280;text-decoration:none;">Un problème ? Contactez l\'assistance</a>';
+
+    btn.parentNode.replaceChild(box, btn);
+  },2600);
 }
 
 /* ─── PROMO CODE ─── */
-function applyPromo(){
+async function applyPromo(){
   const code=document.getElementById('promoInput').value.trim().toUpperCase();
   const msgEl=document.getElementById('promo-msg');
   msgEl.classList.remove('hidden');
-  if(S.promoApplied){ msgEl.className='text-xs mt-2 text-yellow-400'; msgEl.textContent='A promo code has already been applied.'; return; }
-  if(PROMO_CODES[code]){
-    const disc=PROMO_CODES[code];
-    const promoAmt=Math.round(S.finalTotal*(disc/100)*100)/100;
-    S.finalTotal=Math.round((S.finalTotal-promoAmt)*100)/100;
-    S.promoApplied=true;
-    document.getElementById('ps-promo-row').classList.remove('hidden');
-    document.getElementById('ps-promo-amt').textContent='-$'+promoAmt.toFixed(2)+' ('+disc+'%)';
-    document.getElementById('ps-total').textContent='$'+S.finalTotal.toLocaleString('en-US',{minimumFractionDigits:2});
-    document.getElementById('pay-final-display').textContent='$'+S.finalTotal.toLocaleString('en-US',{minimumFractionDigits:2});
-    msgEl.className='text-xs mt-2 c-up font-black';
-    msgEl.textContent='✓ Code "'+code+'" applied — '+disc+'% discount!';
-  } else {
+
+  if(S.promoApplied){
+    msgEl.className='text-xs mt-2 text-yellow-400';
+    msgEl.textContent='Un code promotionnel a déjà été appliqué.';
+    return;
+  }
+  if(!code){
     msgEl.className='text-xs mt-2 c-dn';
-    msgEl.textContent='Invalid promo code. Please try again.';
+    msgEl.textContent='Veuillez saisir un code.';
+    return;
+  }
+  if(!S.orderId || S.orderId.startsWith('AF-LOCAL-')){
+    msgEl.className='text-xs mt-2 c-dn';
+    msgEl.textContent='Commande introuvable. Rechargez la page et recommencez.';
+    return;
+  }
+
+  msgEl.className='text-xs mt-2 text-gray-400';
+  msgEl.textContent='Vérification du code...';
+
+  try{
+    const r=await fetch(BACKEND_URL+'/api/order/'+encodeURIComponent(S.orderId)+'/promo',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({code:code})
+    });
+    if(!r.ok){
+      const e=await r.json().catch(()=>({}));
+      msgEl.className='text-xs mt-2 c-dn';
+      msgEl.textContent=e.detail||'Code promotionnel invalide.';
+      return;
+    }
+    const d=await r.json();
+    const saved=Math.round((d.old_amount-d.new_amount)*100)/100;
+
+    S.finalTotal=d.new_amount;
+    S.payAmount=d.new_amount;
+    S.promoApplied=true;
+
+    const pr=document.getElementById('ps-promo-row');
+    if(pr) pr.classList.remove('hidden');
+    const pa=document.getElementById('ps-promo-amt');
+    if(pa) pa.textContent='-$'+saved.toFixed(2)+' ('+d.discount_pct+'%)';
+    const pt=document.getElementById('ps-total');
+    if(pt) pt.textContent='$'+d.new_amount.toLocaleString('en-US',{minimumFractionDigits:2});
+    const pf=document.getElementById('pay-final-display');
+    if(pf) pf.textContent='$'+d.new_amount.toLocaleString('en-US',{minimumFractionDigits:2});
+
+    msgEl.className='text-xs mt-2 c-up font-black';
+    msgEl.textContent='✓ Code "'+code+'" appliqué — '+d.discount_pct+'% de réduction';
+  }catch(e){
+    msgEl.className='text-xs mt-2 c-dn';
+    msgEl.textContent='Serveur injoignable. Réessayez dans un instant.';
   }
 }
 

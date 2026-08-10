@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpha Fundings · Espace membre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#D4AF37; --gold-lite:#EBD68A; --gold-deep:#B08D2E;
+  --green:#7ee0a8; --red:#ff7a6e; --amber:#e8b84b;
+  --txt:#f2f0ee; --mut:rgba(236,233,228,.56); --mut2:rgba(236,233,228,.3); --mut3:rgba(236,233,228,.18);
+  --hair:rgba(255,255,255,.055); --hair2:rgba(255,255,255,.09);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;color:var(--txt);line-height:1.5;
+  background:radial-gradient(150% 105% at 50% -5%,#1c1d22 0%,#131417 38%,#0c0d10 70%,#08090b 100%);
+  background-attachment:fixed;min-height:100vh;-webkit-font-smoothing:antialiased;padding:0 18px 70px}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.06;mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+::selection{background:rgba(212,175,55,.26)}
+.wrap{position:relative;z-index:2;max-width:540px;margin:0 auto}
+
+/* marque */
+.brand{display:flex;flex-direction:column;align-items:center;padding:46px 0 34px;
+  animation:up .8s var(--ease) both}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.brand-sq{width:58px;height:58px;border-radius:17px;margin-bottom:17px;display:flex;
+  align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#1c1f26,#0d1014);border:1px solid rgba(212,175,55,.24);
+  box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.brand-sq span{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:30px;
+  background:linear-gradient(135deg,#EBD68A,#B08D2E);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent}
+.brand-name{font-family:'Playfair Display',serif;font-weight:700;font-size:25px;letter-spacing:-.3px}
+.brand-name i{font-style:italic;
+  background:linear-gradient(135deg,#EBD68A,#C9A34A);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent}
+.brand-tag{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut3);
+  margin-top:9px;font-weight:700}
+
+/* carte */
+.card{position:relative;isolation:isolate;border-radius:24px;overflow:hidden;
+  background:radial-gradient(150% 90% at 50% -10%,rgba(58,54,48,.26),transparent 55%),
+             linear-gradient(172deg,#23242a 0%,#191a1f 32%,#131418 64%,#0e0f12 100%);
+  border:1px solid var(--hair);
+  box-shadow:0 40px 90px rgba(0,0,0,.55),0 12px 34px rgba(0,0,0,.4);
+  animation:up .9s .1s var(--ease) both}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;z-index:3;
+  background:linear-gradient(90deg,transparent 12%,rgba(196,172,112,.42) 50%,transparent 88%)}
+.card::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E"),
+    radial-gradient(130% 95% at 50% 0%,transparent 45%,rgba(0,0,0,.42) 100%)}
+.card>*{position:relative;z-index:2}
+.card-body{padding:32px 28px}
+
+/* connexion */
+.field{margin-bottom:15px}
+.field label{display:block;font-size:9px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--mut2);margin:0 0 9px 3px}
+.field input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--hair2);border-radius:13px;
+  padding:15px 16px;color:#fff;font:500 16px 'Outfit';letter-spacing:.02em;transition:.3s var(--ease)}
+.field input::placeholder{color:var(--mut3)}
+.field input:focus{outline:none;border-color:rgba(212,175,55,.5);background:rgba(212,175,55,.04);
+  box-shadow:0 0 0 4px rgba(212,175,55,.08)}
+.btn{width:100%;border:none;border-radius:13px;padding:17px;cursor:pointer;margin-top:8px;
+  font:700 12.5px 'Outfit';text-transform:uppercase;letter-spacing:.13em;color:#1a1408;
+  background:linear-gradient(135deg,#EBD68A,#D0AC48 50%,#B08D2E);
+  box-shadow:0 18px 42px rgba(208,172,72,.2),inset 0 1px 0 rgba(255,255,255,.42);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 24px 54px rgba(208,172,72,.3)}
+.btn:disabled{opacity:.55;cursor:wait;transform:none}
+.msg{font-size:12.5px;text-align:center;margin-top:15px;min-height:17px;font-weight:400;color:var(--red)}
+.hint{text-align:center;margin-top:20px;font-size:11px;color:var(--mut3);line-height:1.7}
+
+/* états */
+.state-head{display:flex;align-items:center;gap:13px;margin-bottom:22px}
+.state-ico{width:44px;height:44px;border-radius:13px;flex:0 0 auto;display:flex;
+  align-items:center;justify-content:center;font-size:19px}
+.state-ico.wait{background:rgba(232,184,75,.11);border:1px solid rgba(232,184,75,.3);color:var(--amber)}
+.state-ico.ok{background:rgba(126,224,168,.11);border:1px solid rgba(126,224,168,.32);color:var(--green)}
+.state-ico.err{background:rgba(255,122,110,.1);border:1px solid rgba(255,122,110,.3);color:var(--red)}
+.state-t{font-family:'Playfair Display',serif;font-weight:700;font-size:22px;letter-spacing:-.5px;line-height:1.15}
+.state-s{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--mut2);margin-top:5px}
+.state-txt{font-size:13.5px;line-height:1.78;color:var(--mut);font-weight:300;margin-bottom:24px}
+
+.rows{border:1px solid var(--hair);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.014)}
+.row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:14px 17px;
+  font-size:13.5px}
+.row+.row{border-top:1px solid rgba(255,255,255,.04)}
+.row-k{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut2)}
+.row-v{font-weight:600;text-align:right;word-break:break-all}
+.row-v.mono{letter-spacing:.04em}
+
+.steps{margin-top:22px;padding-top:20px;border-top:1px solid var(--hair)}
+.step{display:flex;gap:11px;font-size:11.5px;line-height:1.7;color:var(--mut2);font-weight:300;padding:5px 0}
+.step b{color:var(--gold-lite);font-weight:700;flex:0 0 auto}
+
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:18px}
+.metric{padding:16px 17px;border:1px solid var(--hair);border-radius:14px;background:rgba(255,255,255,.014)}
+.metric-k{font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--mut3);
+  margin-bottom:8px}
+.metric-v{font-size:20px;font-weight:600;letter-spacing:-.5px}
+.metric-v.up{color:var(--green)}
+
+.foot-btn{width:100%;margin-top:22px;padding:14px;border-radius:12px;cursor:pointer;
+  background:rgba(255,255,255,.03);border:1px solid var(--hair2);color:var(--mut);
+  font:600 11px 'Outfit';text-transform:uppercase;letter-spacing:.14em;transition:.3s var(--ease)}
+.foot-btn:hover{background:rgba(255,255,255,.06);color:var(--txt)}
+
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(26,20,8,.3);
+  border-top-color:#1a1408;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.hidden{display:none}
+
+@media(max-width:540px){.card-body{padding:26px 20px}.brand{padding:36px 0 28px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="wrap">
+
+  <div class="brand">
+    <div class="brand-sq"><span>A</span></div>
+    <div class="brand-name">Alpha <i>Fundings</i></div>
+    <div class="brand-tag">Espace membre</div>
+  </div>
+
+  <!-- CONNEXION -->
+  <div class="card" id="loginCard">
+    <div class="card-body">
+      <div class="field">
+        <label>Identifiant trader</label>
+        <input id="oid" type="text" placeholder="AF-XXXX-XXXX" autocomplete="off"
+               spellcheck="false" autocapitalize="characters" autocorrect="off">
+      </div>
+      <button class="btn" id="loginBtn" onclick="login()">Accéder à mon espace</button>
+      <div class="msg" id="msg"></div>
+      <div class="hint">Votre identifiant trader figure dans le courriel<br>reçu lors de votre inscription.</div>
+    </div>
+  </div>
+
+  <!-- RÉSULTAT -->
+  <div class="card hidden" id="stateCard">
+    <div class="card-body" id="stateBody"></div>
+  </div>
+
+</div>
+
+<script>
+const BACKEND = 'https://alphafundings-backend.onrender.com';
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt0 = n => Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+
+async function login(){
+  const oid = $('oid').value.trim().toUpperCase();
+  const btn = $('loginBtn'), msg = $('msg');
+  msg.textContent = '';
+  if(!oid){ msg.textContent = 'Veuillez saisir votre identifiant trader.'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Vérification...';
+
+  try{
+    const r = await fetch(BACKEND + '/api/order/' + encodeURIComponent(oid));
+    if(r.status === 404){
+      msg.textContent = 'Identifiant introuvable. Vérifiez votre saisie.';
+      btn.disabled = false; btn.textContent = 'Accéder à mon espace';
+      return;
+    }
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    $('loginCard').classList.add('hidden');
+    $('stateCard').classList.remove('hidden');
+    render(d);
+  }catch(e){
+    msg.textContent = 'Connexion au serveur impossible. Réessayez dans un instant.';
+    btn.disabled = false; btn.textContent = 'Accéder à mon espace';
+  }
+}
+
+function render(d){
+  const st = d.status;
+  let html = '';
+
+  if(st === 'ACTIVE'){
+    const p = d.performance || {};
+    const bal = p.balance ?? d.account_size;
+    const eq  = p.equity  ?? bal;
+    const pnl = (eq - d.account_size);
+    const pct = d.account_size ? (pnl / d.account_size * 100) : 0;
+
+    html = `
+      <div class="state-head">
+        <div class="state-ico ok">✓</div>
+        <div><div class="state-t">${d.name || 'Compte actif'}</div>
+        <div class="state-s">Compte actif · ${d.plan || ''}</div></div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-k">Capital alloué</div>
+          <div class="metric-v">${fmt0(d.account_size)}</div></div>
+        <div class="metric"><div class="metric-k">Équité</div>
+          <div class="metric-v">${fmt(eq)}</div></div>
+        <div class="metric"><div class="metric-k">Résultat net</div>
+          <div class="metric-v ${pnl>=0?'up':''}">${pnl>=0?'+':''}${fmt(pnl)}</div></div>
+        <div class="metric"><div class="metric-k">Performance</div>
+          <div class="metric-v ${pct>=0?'up':''}">${pct>=0?'+':''}${pct.toFixed(2)}%</div></div>
+      </div>
+      <div class="rows" style="margin-top:16px">
+        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
+        <div class="row"><span class="row-k">Login MT5</span><span class="row-v mono">${d.mt_login || '—'}</span></div>
+        <div class="row"><span class="row-k">Serveur</span><span class="row-v mono">${d.mt_server || '—'}</span></div>
+      </div>
+      <button class="foot-btn" onclick="location.reload()">Actualiser</button>`;
+  }
+
+  else if(st === 'PENDING_PAYMENT'){
+    html = `
+      <div class="state-head">
+        <div class="state-ico wait">◷</div>
+        <div><div class="state-t">Compte en attente d'activation</div>
+        <div class="state-s">Paiement non confirmé</div></div>
+      </div>
+      <p class="state-txt">Votre commande est enregistrée. L'accès à votre espace s'ouvrira
+      automatiquement dès que le paiement sera confirmé sur la blockchain, sans aucune action
+      de votre part.</p>
+      <div class="rows">
+        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
+        <div class="row"><span class="row-k">Formule</span><span class="row-v">${d.plan || '—'}</span></div>
+        <div class="row"><span class="row-k">Capital</span><span class="row-v">${fmt0(d.account_size)} USD</span></div>
+      </div>
+      <div class="steps">
+        <div class="step"><b>1.</b><span>Effectuez le règlement du montant exact indiqué lors de la commande.</span></div>
+        <div class="step"><b>2.</b><span>La confirmation intervient sous 10 à 30 minutes.</span></div>
+        <div class="step"><b>3.</b><span>Vos identifiants MT5 vous seront envoyés par courriel.</span></div>
+      </div>
+      <button class="foot-btn" onclick="location.reload()">Vérifier à nouveau</button>`;
+  }
+
+  else if(st === 'PAID'){
+    html = `
+      <div class="state-head">
+        <div class="state-ico wait">◷</div>
+        <div><div class="state-t">Paiement confirmé</div>
+        <div class="state-s">Création du compte en cours</div></div>
+      </div>
+      <p class="state-txt">Votre paiement a bien été reçu. Votre compte de financement est en
+      cours de création. Vos identifiants vous parviendront par courriel dans quelques minutes.</p>
+      <div class="rows">
+        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
+        <div class="row"><span class="row-k">Capital</span><span class="row-v">${fmt0(d.account_size)} USD</span></div>
+      </div>
+      <button class="foot-btn" onclick="location.reload()">Actualiser</button>`;
+  }
+
+  else {
+    html = `
+      <div class="state-head">
+        <div class="state-ico err">!</div>
+        <div><div class="state-t">Dossier en cours de traitement</div>
+        <div class="state-s">${st || 'Statut indisponible'}</div></div>
+      </div>
+      <p class="state-txt">Votre dossier nécessite une vérification. Contactez le support en
+      précisant votre identifiant trader.</p>
+      <div class="rows">
+        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
+      </div>
+      <button class="foot-btn" onclick="location.reload()">Actualiser</button>`;
+  }
+
+  $('stateBody').innerHTML = html;
+}
+
+$('oid').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
+
+// Connexion directe via ?oid=AF-XXXX-XXXX
+const qs = new URLSearchParams(location.search).get('oid');
+if(qs){ $('oid').value = qs; login(); }
+</script>
+</body>
+</html>
