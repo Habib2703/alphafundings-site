@@ -802,6 +802,56 @@ function showResult(d){
       <button class="btn-ghost" onclick="location.reload()">Actualiser</button>`;
   }
 
+  else if(st==='LOCKED_UNDERPAID'){
+    const expected = Number(d.amount||0);
+    const received = Number(d.received||0);
+    const due = Number(d.balance_due||0);
+
+    let deadlineBlock = '';
+    if(d.marked_at){
+      const markedDate = new Date(d.marked_at+'Z');
+      const deadline = new Date(markedDate.getTime() + 24*60*60*1000);
+      const now = new Date();
+      const msLeft = deadline - now;
+      if(msLeft > 0){
+        const hLeft = Math.floor(msLeft/3600000);
+        const mLeft = Math.floor((msLeft%3600000)/60000);
+        deadlineBlock = `<div class="note a" style="margin:0 0 18px">
+          <b style="color:#fff">Délai de régularisation : ${hLeft}h ${mLeft}min restantes.</b>
+          Passé ce délai, votre dossier reste actif mais fera l'objet d'un suivi renforcé
+          jusqu'à réception du complément exact.</div>`;
+      } else {
+        deadlineBlock = `<div class="note r" style="margin:0 0 18px">
+          <b style="color:#fff">Le délai de 24 heures est dépassé.</b> Votre dossier reste
+          actif et votre allocation demeure réservée : réglez le complément dès que possible
+          pour débloquer vos identifiants MT5.</div>`;
+      }
+    }
+
+    h=`<div class="diag"><div class="diag-ico err">!</div>
+        <div><div class="diag-t">Solde restant à régler</div>
+        <div class="diag-s">Compte créé · réglement incomplet</div></div></div>
+      <p class="diag-txt">Votre compte de financement <strong style="color:#fff">a déjà été créé</strong>
+      et vous attend. Le règlement reçu ne correspond toutefois pas exactement au montant
+      demandé — un montant reste dû avant que vos identifiants MT5 ne puissent être transmis.</p>
+      ${deadlineBlock}
+      <div class="rows">
+        <div class="row"><span class="row-k">Dossier</span><span class="row-v">${d.order_id}</span></div>
+        <div class="row"><span class="row-k">Capital</span><span class="row-v">${fmt0(d.account_size)} USD</span></div>
+        <div class="row"><span class="row-k">Montant total attendu</span><span class="row-v">${expected.toFixed(2)} USD</span></div>
+        <div class="row"><span class="row-k">Montant reçu</span><span class="row-v" style="color:#7ee0a8">${received.toFixed(2)} USD</span></div>
+        <div class="row"><span class="row-k">Montant restant dû</span>
+          <span class="row-v" style="color:#ff8a80;font-weight:700">${due.toFixed(2)} USD</span></div>
+      </div>
+      <div class="steps">
+        <div class="step"><b>1.</b><span><strong style="color:#fff">Le montant doit être exact, au centime près.</strong> C'est ce qui permet l'attribution automatique de votre règlement.</span></div>
+        <div class="step"><b>2.</b><span>Réglez ce montant sur la même adresse et le même réseau que votre premier versement.</span></div>
+        <div class="step"><b>3.</b><span>Vos identifiants MT5 vous parviennent automatiquement, sans démarche supplémentaire, dès réception.</span></div>
+      </div>
+      <button class="btn" onclick="location.href='/espace-membre.html?oid=${d.order_id}'">Régler depuis mon espace membre</button>
+      <button class="btn-ghost" onclick="reset()">Retour</button>`;
+  }
+
   else if(st==='PENDING_PAYMENT'){
     const tx=$('txhash').value.trim();
     h=`<div class="diag"><div class="diag-ico err">!</div>
