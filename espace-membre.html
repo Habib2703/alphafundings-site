@@ -1,287 +1,755 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alpha Fundings · Espace membre</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Alpha Funding · Terminal</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{
-  --gold:#D4AF37; --gold-lite:#EBD68A; --gold-deep:#B08D2E;
-  --green:#7ee0a8; --red:#ff7a6e; --amber:#e8b84b;
-  --txt:#f2f0ee; --mut:rgba(236,233,228,.56); --mut2:rgba(236,233,228,.3); --mut3:rgba(236,233,228,.18);
-  --hair:rgba(255,255,255,.055); --hair2:rgba(255,255,255,.09);
-  --ease:cubic-bezier(.22,1,.36,1);
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Outfit',sans-serif;background:#050505;color:#fff;overflow-x:hidden;min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(212,175,55,.15);border-radius:3px}
+
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none}
+.bgfx::before{content:'';position:absolute;width:90%;height:50%;left:50%;top:-8%;transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,rgba(212,175,55,.10),transparent 70%)}
+.bgfx::after{content:'';position:absolute;width:45%;height:35%;left:88%;top:92%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center,rgba(212,175,55,.05),transparent 70%)}
+.grid-lines{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(212,175,55,.020) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.020) 1px,transparent 1px);
+  background-size:52px 52px}
+
+.gold-txt{background:linear-gradient(135deg,#D4AF37,#F4D03F,#C9A227);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.mono{font-family:'Space Mono',monospace}
+.hidden{display:none!important}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.20}}
+@keyframes ringPulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.06);opacity:0}}
+@keyframes popIn{from{opacity:0;transform:scale(.88) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes ringIn{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;height:60px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(5,5,5,.90);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-bottom:1px solid rgba(255,255,255,.055);padding:0 26px}
+.logo{font-weight:900;font-size:16px;letter-spacing:-.02em;color:#fff}
+.logo span{font-weight:300;color:#D4AF37}
+.nav-r{display:flex;align-items:center;gap:16px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 7px #22c55e;animation:blink 1.6s infinite}
+.live-wrap{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;letter-spacing:.13em;color:#22c55e}
+.badge-id{background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.18);border-radius:8px;padding:5px 11px;
+  font-size:9px;color:#D4AF37}
+.logout{background:none;border:none;color:#2e2e2e;padding:8px;border-radius:8px;cursor:pointer;font-size:14px;transition:.2s}
+.logout:hover{color:#fff}
+
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;z-index:2}
+.login-in{max-width:390px;width:100%}
+.eyebrow{text-align:center;font-size:10px;font-weight:700;letter-spacing:.36em;text-transform:uppercase;color:#2e2e2e;margin-bottom:14px}
+.login-logo{text-align:center;font-weight:900;font-size:32px;text-transform:uppercase;letter-spacing:-1px;line-height:1;color:#fff}
+.login-logo span{font-weight:300;color:#D4AF37}
+.sep{width:48px;height:1px;margin:16px auto;background:linear-gradient(90deg,transparent,rgba(212,175,55,.28),transparent)}
+.subtag{text-align:center;font-size:9px;color:#282828;font-weight:600;letter-spacing:.13em;text-transform:uppercase;margin-bottom:30px}
+.card{background:rgba(18,18,18,.94);border:1px solid rgba(255,255,255,.055);border-radius:18px;padding:34px 30px}
+.field{margin-bottom:20px}
+.field label{display:block;font-size:9px;font-weight:900;letter-spacing:.20em;text-transform:uppercase;color:#333;margin-bottom:9px}
+.field input{width:100%;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.07);border-radius:12px;
+  padding:18px 16px;color:#fff;font:600 15px 'Outfit';transition:.25s}
+.field input::placeholder{color:#252525}
+.field input:focus{outline:none;border-color:rgba(212,175,55,.5);box-shadow:0 0 0 4px rgba(212,175,55,.06)}
+.btn-gold{width:100%;border:none;border-radius:12px;padding:19px;cursor:pointer;position:relative;overflow:hidden;
+  font:900 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#050505;
+  background:linear-gradient(135deg,#D4AF37 0%,#F4D03F 100%);transition:.25s}
+.btn-gold::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 55%)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(212,175,55,.30)}
+.btn-gold:disabled{opacity:.55;cursor:wait;transform:none}
+.err{text-align:center;color:#ef4444;font-size:9px;font-weight:900;letter-spacing:.17em;text-transform:uppercase;margin-top:16px;min-height:12px}
+.foot-tls{text-align:center;margin-top:22px;font-size:9px;color:#1a1a1a;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+
+.dash{padding-top:86px;position:relative;z-index:2;display:none}
+.wrap{max-width:1240px;margin:0 auto;padding:26px 26px 60px}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:20px}
+.dhead-eyebrow{display:flex;align-items:center;gap:9px;font-size:8px;font-weight:900;letter-spacing:.30em;text-transform:uppercase;color:#D4AF37;margin-bottom:6px}
+.dhead-eyebrow::before{content:'';width:16px;height:1px;background:rgba(212,175,55,.5)}
+.dhead h1{font-size:24px;font-weight:900;letter-spacing:-.4px;color:#fff}
+.dhead-r{display:flex;align-items:center;gap:12px}
+.pill-active{display:flex;align-items:center;gap:7px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.20);
+  border-radius:8px;padding:6px 12px;font-size:9px;font-weight:700;letter-spacing:.1em;color:#22c55e;text-transform:uppercase}
+.pill-active .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:blink 1.6s infinite}
+.utc{font-size:9px;color:#222}
+
+.welcome{background:linear-gradient(135deg,rgba(212,175,55,.06),rgba(212,175,55,.02));border:1px solid rgba(212,175,55,.20);
+  border-radius:18px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:14px}
+.w-l{display:flex;align-items:flex-start;gap:14px}
+.w-ico{width:46px;height:46px;border-radius:14px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.20);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.w-ico i{font-size:17px;color:#D4AF37}
+.w-eyebrow{font-size:9px;font-weight:900;letter-spacing:.20em;text-transform:uppercase;color:rgba(212,175,55,.6);margin-bottom:5px}
+.w-line{color:#fff;font-size:15px;font-weight:900}
+.w-sub{font-size:10px;color:#444;font-weight:600;margin-top:4px}
+.w-sub b{color:#555;font-family:'Space Mono',monospace;font-weight:400}
+.w-r{text-align:right}
+.w-r-k{font-size:8px;text-transform:uppercase;letter-spacing:.15em;color:#333;margin-bottom:5px}
+.w-r-v{font-size:13px;font-weight:900;color:#D4AF37}
+.w-r-s{font-size:9px;color:#3a3a3a;margin-top:3px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}
+.stat{position:relative;background:rgba(18,18,18,.94);border:1px solid rgba(255,255,255,.055);border-radius:18px;
+  padding:22px 24px;overflow:hidden;transition:.3s}
+.stat:hover{transform:translateY(-3px);box-shadow:0 18px 46px rgba(0,0,0,.5)}
+.stat::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 55%,rgba(212,175,55,.04) 100%);pointer-events:none}
+.stat.gold{border-color:rgba(212,175,55,.22);box-shadow:0 0 36px rgba(212,175,55,.08),inset 0 1px 0 rgba(212,175,55,.10)}
+.stat-ghost{position:absolute;bottom:-8px;right:6px;font-size:66px;opacity:.03;pointer-events:none}
+.stat-badge{position:absolute;top:16px;right:16px;font-size:8px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid rgba(255,255,255,.06);color:#444}
+.stat-badge.green{color:#22c55e;border-color:rgba(34,197,94,.20);background:rgba(34,197,94,.05)}
+.stat-lbl{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:#3e3e3e;margin-bottom:10px}
+.stat-lbl i{color:#2e2e2e;font-size:11px}
+.stat.gold .stat-lbl{color:rgba(212,175,55,.65)}
+.stat.gold .stat-lbl i{color:#D4AF37}
+.stat-val{font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#fff;position:relative;z-index:1}
+.stat-val.dim{color:#ccc}
+.pbar{height:3px;background:rgba(255,255,255,.05);border-radius:3px;margin-top:12px;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#D4AF37,#F4D03F);transition:width 1s ease}
+.pbar-row{display:flex;justify-content:space-between;font-size:8px;margin-top:7px;color:#2e2e2e}
+.pbar-row b{color:#444;font-weight:900}
+
+.payout-btn{position:relative;background:linear-gradient(135deg,#D4AF37,#F4D03F);border-radius:18px;min-height:115px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:22px 14px;
+  border:none;cursor:pointer;overflow:hidden;transition:.3s}
+.payout-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 55%)}
+.payout-btn:hover{transform:translateY(-4px);box-shadow:0 20px 45px rgba(212,175,55,.40)}
+.pring{position:absolute;inset:-4px;border-radius:22px;border:2px solid rgba(212,175,55,.45);animation:ringPulse 2.2s infinite}
+.p-ico{width:42px;height:42px;border-radius:12px;background:rgba(0,0,0,.20);display:flex;align-items:center;justify-content:center;z-index:1}
+.p-ico i{font-size:17px;color:#050505}
+.payout-btn span{font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#050505;z-index:1}
+
+.targets{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.tcard{background:rgba(18,18,18,.94);border:1px solid rgba(255,255,255,.055);border-radius:18px;padding:18px 20px}
+.tcard .stat-lbl{margin-bottom:9px}
+.tval{display:flex;align-items:baseline;gap:6px}
+.tval b{font-size:20px;font-weight:900;color:#ccc}
+.tval span{font-size:10px;color:#3a3a3a;font-weight:700}
+.tdesc{font-size:9px;color:#2a2a2a;font-weight:600;margin-top:6px}
+
+.fpayout{background:linear-gradient(135deg,rgba(212,175,55,.06),rgba(212,175,55,.02));border:1px solid rgba(212,175,55,.22);
+  border-radius:18px;padding:22px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:14px}
+.fp-l{display:flex;align-items:center;gap:14px}
+.fp-ico{width:52px;height:52px;border-radius:14px;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.20);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.fp-ico i{font-size:18px;color:#D4AF37}
+.fp-amt{font-size:22px;font-weight:900}
+.fp-amt small{font-size:13px;color:#444;font-weight:400;margin-left:4px}
+.fp-sub{font-size:10px;color:#3a3a3a;font-weight:600;margin-top:4px}
+.fp-badge{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.20);border-radius:10px;padding:8px 14px}
+.fp-badge-l{display:flex;align-items:center;gap:6px;font-size:8px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#fbbf24;margin-bottom:3px}
+.fp-badge-s{font-size:10px;color:#666;font-weight:600}
+
+.midgrid{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:18px}
+.chead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ctitle{font-size:13px;font-weight:900;text-transform:uppercase}
+.cbadge{background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.14);border-radius:8px;padding:6px 12px;
+  font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#D4AF37}
+.chart-note{text-align:center;font-size:10px;color:#2a2a2a;font-weight:600;margin-top:10px}
+
+.rules-card{position:relative;overflow:hidden}
+.rules-card::before{content:'';position:absolute;top:0;right:0;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(212,175,55,.06),transparent 70%);pointer-events:none}
+.rule{position:relative;display:flex;align-items:center;gap:10px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.10);
+  border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.rule.gold{background:rgba(212,175,55,.05);border-color:rgba(212,175,55,.15)}
+.rule-ico{width:30px;height:30px;border-radius:8px;background:rgba(239,68,68,.10);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.rule-ico i{font-size:12px;color:#ef4444}
+.rule.gold .rule-ico{background:rgba(212,175,55,.12)}
+.rule.gold .rule-ico i{color:#D4AF37}
+.rule-body{flex:1}
+.rule-lbl{font-size:8px;text-transform:uppercase;color:#444;letter-spacing:.1em}
+.rule-val{font-size:15px;font-weight:900;color:#fff}
+.rule.gold .rule-val{color:#D4AF37}
+.rule-badge{font-size:8px;text-transform:uppercase;font-weight:900;padding:3px 8px;border-radius:8px;
+  background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.20);color:#22c55e}
+.rule.gold .rule-badge{background:none;border:none;color:#D4AF37;font-size:8px}
+
+.minigrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.minib{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;text-align:center}
+.minib.gold{background:rgba(212,175,55,.05);border-color:rgba(212,175,55,.12)}
+.minib-k{font-size:8px;color:#3a3a3a}
+.minib.gold .minib-k{color:rgba(212,175,55,.5)}
+.minib-v{font-size:14px;font-weight:900;color:#fff;margin-top:2px}
+.minib.gold .minib-v{color:#D4AF37}
+
+.thead-row{display:grid;grid-template-columns:48px 1fr 80px 80px 70px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+.thead-row span{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.18em;color:#2a2a2a}
+.empty-state{padding:40px 20px;text-align:center}
+.empty-ico{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.03);display:flex;align-items:center;
+  justify-content:center;margin:0 auto 14px}
+.empty-ico i{font-size:20px;color:#2e2e2e}
+.empty-t{font-size:12px;font-weight:700;color:#2e2e2e;margin-bottom:5px}
+.empty-s{font-size:10px;color:#1e1e1e;font-weight:600}
+.trow{display:grid;grid-template-columns:48px 1fr 80px 80px 70px;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:11px;align-items:center}
+.trow:last-child{border-bottom:none}
+.trow .n{color:#3a3a3a;font-family:'Space Mono',monospace}
+.trow .pl{font-family:'Space Mono',monospace;font-weight:700}
+.trow .pl.up{color:#22c55e}
+.trow .pl.dn{color:#ef4444}
+
+.alert-bottom{background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.15);border-radius:16px;
+  padding:15px 20px;display:flex;align-items:center;gap:13px}
+.alert-ico{width:34px;height:34px;border-radius:10px;background:rgba(251,191,36,.10);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.alert-ico i{font-size:13px;color:#fbbf24}
+.alert-l1{font-size:10px;font-weight:900;color:#fbbf24;text-transform:uppercase;letter-spacing:.13em;margin-bottom:3px}
+.alert-l2{font-size:11px;color:#444;font-weight:600}
+
+.withdraw{display:none;padding-top:96px;position:relative;z-index:2}
+.wwrap{max-width:530px;margin:0 auto;padding:0 24px 60px}
+.back-btn{background:none;border:none;display:flex;align-items:center;gap:8px;font-size:10px;font-weight:900;
+  letter-spacing:.17em;text-transform:uppercase;color:#3e3e3e;cursor:pointer;margin-bottom:34px;transition:.2s}
+.back-btn:hover{color:#fff}
+.wtitle{font-size:28px;font-weight:900;letter-spacing:-1px;text-transform:uppercase;margin-bottom:22px}
+.avail{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.20);border-radius:16px;padding:16px 20px;
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.avail-k{font-size:8px;color:#333;text-transform:uppercase;margin-bottom:5px}
+.avail-v{font-size:21px;font-weight:900}
+.avail-net{font-size:11px;font-weight:700;text-align:right}
+.avail-badge{display:flex;align-items:center;gap:5px;font-size:9px;color:#22c55e;margin-top:4px;justify-content:flex-end}
+.wform{padding:30px 26px}
+.wform .field input.mono-in{font-family:'Space Mono',monospace;font-size:12px}
+.hint{font-size:9px;color:#252525;font-weight:600;margin-top:8px;display:flex;align-items:center;gap:6px}
+.amt-wrap{position:relative}
+.amt-wrap input{font-size:24px;font-weight:900;padding-right:60px}
+.amt-suffix{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:10px;color:#2e2e2e}
+.minmax{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.minmax span{font-size:9px;color:#252525}
+.maxbtn{background:none;border:none;color:#D4AF37;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer}
+
+.modal-bg{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.90);backdrop-filter:blur(14px);
+  align-items:center;justify-content:center;padding:20px}
+.modal{background:#0d0d0d;border:1px solid rgba(212,175,55,.22);border-radius:24px;padding:38px 32px;max-width:440px;width:100%;
+  animation:popIn .38s cubic-bezier(.34,1.56,.64,1)}
+.mtitle{font-size:24px;font-weight:900}
+.mbox{background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:18px 20px;margin:20px 0}
+.mrow{display:flex;justify-content:space-between;padding:6px 0;font-size:11px}
+.mrow .k{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#3e3e3e}
+.mrow .v{font-family:'Space Mono',monospace;color:#aaa}
+.legal{font-size:10px;color:#333;text-align:center;margin:18px 0}
+.mbtns{display:flex;gap:10px}
+.btn-ghost{flex:1;background:none;border:1px solid rgba(255,255,255,.07);color:#555;border-radius:12px;padding:16px;
+  font:900 11px 'Outfit';text-transform:uppercase;letter-spacing:.1em;cursor:pointer}
+.mbtns .btn-gold{flex:2}
+
+.success{display:none;padding-top:96px;position:relative;z-index:2}
+.swrap{max-width:490px;margin:0 auto;padding:70px 24px;text-align:center}
+.sring{width:90px;height:90px;border-radius:50%;background:rgba(212,175,55,.07);border:2px solid rgba(212,175,55,.27);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 26px;animation:ringIn .55s cubic-bezier(.34,1.56,.64,1)}
+.sring i{font-size:32px;color:#D4AF37}
+.spara{font-size:13px;color:#3e3e3e;margin:14px 0 26px}
+.spara strong{color:#666}
+.receipt-t{text-align:center;font-size:9px;color:#2e2e2e;text-transform:uppercase;margin-bottom:14px}
+.status-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.20);
+  color:#fbbf24;border-radius:99px;padding:4px 10px;font-size:10px}
+.green-band{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.13);border-radius:12px;padding:14px 16px;
+  display:flex;align-items:center;gap:10px;margin:18px 0;text-align:left}
+.green-band i{color:#22c55e;font-size:16px}
+.green-band span{font-size:10px;color:#3a3a3a}
+
+.toast-wrap{position:fixed;top:72px;right:18px;z-index:200}
+.toast{background:rgba(24,24,24,.97);border:1px solid rgba(255,255,255,.055);border-radius:14px;padding:13px 17px;
+  display:flex;gap:12px;margin-bottom:10px;animation:toastIn .35s ease both;min-width:230px}
+.t-ico{width:33px;height:33px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.t-ico.ok{background:rgba(212,175,55,.10)}.t-ico.ok i{color:#D4AF37}
+.t-ico.err{background:rgba(239,68,68,.10)}.t-ico.err i{color:#ef4444}
+.t-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.13em}
+.t-sub{font-size:11px;color:#555;font-weight:500}
+
+.paycard{background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(212,175,55,.015));border:1px solid rgba(212,175,55,.22);
+  border-radius:18px;padding:30px 26px;text-align:center;margin-bottom:14px}
+.pay-k{font-size:9px;font-weight:900;letter-spacing:.20em;text-transform:uppercase;color:#666;margin-bottom:12px}
+.pay-v{font-size:38px;font-weight:900}
+.pay-c{font-size:11px;color:#444;margin-bottom:18px}
+.pay-qr{width:130px;border-radius:12px;background:#fff;padding:8px;margin-bottom:16px}
+.pay-addr{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px;
+  font-family:'Space Mono',monospace;font-size:11px;color:#D4AF37;word-break:break-all;margin-bottom:14px}
+.wait-list{margin:0 26px 20px}
+.wstep{display:flex;gap:11px;font-size:11px;color:#555;padding:8px 0;text-align:left}
+.wstep b{color:#D4AF37;flex:0 0 auto}
+
+@media(max-width:640px){
+  .nav{padding:0 14px}.logo{font-size:13px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .payout-btn{grid-column:span 2;flex-direction:row}
+  .stat{padding:16px 18px}.stat-val{font-size:19px}.stat-badge{display:none}
+  .midgrid{grid-template-columns:1fr}
+  .targets{grid-template-columns:1fr 1fr}
+  .modal{padding:26px 18px}
+  .thead-row span:nth-child(4),.thead-row span:nth-child(5),.trow .n{display:none}
+  .thead-row,.trow{grid-template-columns:1fr 90px 70px}
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Outfit',sans-serif;font-variant-numeric:tabular-nums;color:var(--txt);line-height:1.5;
-  background:radial-gradient(150% 105% at 50% -5%,#1c1d22 0%,#131417 38%,#0c0d10 70%,#08090b 100%);
-  background-attachment:fixed;min-height:100vh;-webkit-font-smoothing:antialiased;padding:0 18px 70px}
-.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.06;mix-blend-mode:soft-light;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-::selection{background:rgba(212,175,55,.26)}
-.wrap{position:relative;z-index:2;max-width:540px;margin:0 auto}
-
-/* marque */
-.brand{display:flex;flex-direction:column;align-items:center;padding:46px 0 34px;
-  animation:up .8s var(--ease) both}
-@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-.brand-sq{width:58px;height:58px;border-radius:17px;margin-bottom:17px;display:flex;
-  align-items:center;justify-content:center;
-  background:linear-gradient(145deg,#1c1f26,#0d1014);border:1px solid rgba(212,175,55,.24);
-  box-shadow:0 20px 50px rgba(0,0,0,.6)}
-.brand-sq span{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:30px;
-  background:linear-gradient(135deg,#EBD68A,#B08D2E);-webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent}
-.brand-name{font-family:'Playfair Display',serif;font-weight:700;font-size:25px;letter-spacing:-.3px}
-.brand-name i{font-style:italic;
-  background:linear-gradient(135deg,#EBD68A,#C9A34A);-webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent}
-.brand-tag{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut3);
-  margin-top:9px;font-weight:700}
-
-/* carte */
-.card{position:relative;isolation:isolate;border-radius:24px;overflow:hidden;
-  background:radial-gradient(150% 90% at 50% -10%,rgba(58,54,48,.26),transparent 55%),
-             linear-gradient(172deg,#23242a 0%,#191a1f 32%,#131418 64%,#0e0f12 100%);
-  border:1px solid var(--hair);
-  box-shadow:0 40px 90px rgba(0,0,0,.55),0 12px 34px rgba(0,0,0,.4);
-  animation:up .9s .1s var(--ease) both}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;z-index:3;
-  background:linear-gradient(90deg,transparent 12%,rgba(196,172,112,.42) 50%,transparent 88%)}
-.card::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:soft-light;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E"),
-    radial-gradient(130% 95% at 50% 0%,transparent 45%,rgba(0,0,0,.42) 100%)}
-.card>*{position:relative;z-index:2}
-.card-body{padding:32px 28px}
-
-/* connexion */
-.field{margin-bottom:15px}
-.field label{display:block;font-size:9px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--mut2);margin:0 0 9px 3px}
-.field input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--hair2);border-radius:13px;
-  padding:15px 16px;color:#fff;font:500 16px 'Outfit';letter-spacing:.02em;transition:.3s var(--ease)}
-.field input::placeholder{color:var(--mut3)}
-.field input:focus{outline:none;border-color:rgba(212,175,55,.5);background:rgba(212,175,55,.04);
-  box-shadow:0 0 0 4px rgba(212,175,55,.08)}
-.btn{width:100%;border:none;border-radius:13px;padding:17px;cursor:pointer;margin-top:8px;
-  font:700 12.5px 'Outfit';text-transform:uppercase;letter-spacing:.13em;color:#1a1408;
-  background:linear-gradient(135deg,#EBD68A,#D0AC48 50%,#B08D2E);
-  box-shadow:0 18px 42px rgba(208,172,72,.2),inset 0 1px 0 rgba(255,255,255,.42);
-  transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
-.btn:hover{transform:translateY(-2px);box-shadow:0 24px 54px rgba(208,172,72,.3)}
-.btn:disabled{opacity:.55;cursor:wait;transform:none}
-.msg{font-size:12.5px;text-align:center;margin-top:15px;min-height:17px;font-weight:400;color:var(--red)}
-.hint{text-align:center;margin-top:20px;font-size:11px;color:var(--mut3);line-height:1.7}
-
-/* états */
-.state-head{display:flex;align-items:center;gap:13px;margin-bottom:22px}
-.state-ico{width:44px;height:44px;border-radius:13px;flex:0 0 auto;display:flex;
-  align-items:center;justify-content:center;font-size:19px}
-.state-ico.wait{background:rgba(232,184,75,.11);border:1px solid rgba(232,184,75,.3);color:var(--amber)}
-.state-ico.ok{background:rgba(126,224,168,.11);border:1px solid rgba(126,224,168,.32);color:var(--green)}
-.state-ico.err{background:rgba(255,122,110,.1);border:1px solid rgba(255,122,110,.3);color:var(--red)}
-.state-t{font-family:'Playfair Display',serif;font-weight:700;font-size:22px;letter-spacing:-.5px;line-height:1.15}
-.state-s{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--mut2);margin-top:5px}
-.state-txt{font-size:13.5px;line-height:1.78;color:var(--mut);font-weight:300;margin-bottom:24px}
-
-.rows{border:1px solid var(--hair);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.014)}
-.row{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:14px 17px;
-  font-size:13.5px}
-.row+.row{border-top:1px solid rgba(255,255,255,.04)}
-.row-k{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut2)}
-.row-v{font-weight:600;text-align:right;word-break:break-all}
-.row-v.mono{letter-spacing:.04em}
-
-.steps{margin-top:22px;padding-top:20px;border-top:1px solid var(--hair)}
-.step{display:flex;gap:11px;font-size:11.5px;line-height:1.7;color:var(--mut2);font-weight:300;padding:5px 0}
-.step b{color:var(--gold-lite);font-weight:700;flex:0 0 auto}
-
-.metrics{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:18px}
-.metric{padding:16px 17px;border:1px solid var(--hair);border-radius:14px;background:rgba(255,255,255,.014)}
-.metric-k{font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--mut3);
-  margin-bottom:8px}
-.metric-v{font-size:20px;font-weight:600;letter-spacing:-.5px}
-.metric-v.up{color:var(--green)}
-
-.foot-btn{width:100%;margin-top:22px;padding:14px;border-radius:12px;cursor:pointer;
-  background:rgba(255,255,255,.03);border:1px solid var(--hair2);color:var(--mut);
-  font:600 11px 'Outfit';text-transform:uppercase;letter-spacing:.14em;transition:.3s var(--ease)}
-.foot-btn:hover{background:rgba(255,255,255,.06);color:var(--txt)}
-
-.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(26,20,8,.3);
-  border-top-color:#1a1408;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:8px}
-@keyframes sp{to{transform:rotate(360deg)}}
-.hidden{display:none}
-
-@media(max-width:540px){.card-body{padding:26px 20px}.brand{padding:36px 0 28px}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="grain"></div>
-<div class="wrap">
+<div class="bgfx"></div><div class="grid-lines"></div>
 
-  <div class="brand">
-    <div class="brand-sq"><span>A</span></div>
-    <div class="brand-name">Alpha <i>Fundings</i></div>
-    <div class="brand-tag">Espace membre</div>
+<div class="nav" id="navBar" style="display:none">
+  <div class="logo">ALPHA<span>FUNDING</span></div>
+  <div class="nav-r">
+    <div class="live-wrap"><span class="live-dot"></span>LIVE</div>
+    <div class="badge-id mono" id="navId">—</div>
+    <button class="logout" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
   </div>
-
-  <!-- CONNEXION -->
-  <div class="card" id="loginCard">
-    <div class="card-body">
-      <div class="field">
-        <label>Identifiant trader</label>
-        <input id="oid" type="text" placeholder="AF-XXXX-XXXX" autocomplete="off"
-               spellcheck="false" autocapitalize="characters" autocorrect="off">
-      </div>
-      <button class="btn" id="loginBtn" onclick="login()">Accéder à mon espace</button>
-      <div class="msg" id="msg"></div>
-      <div class="hint">Votre identifiant trader figure dans le courriel<br>reçu lors de votre inscription.</div>
-    </div>
-  </div>
-
-  <!-- RÉSULTAT -->
-  <div class="card hidden" id="stateCard">
-    <div class="card-body" id="stateBody"></div>
-  </div>
-
 </div>
 
+<div class="login" id="loginScreen">
+  <div class="login-in">
+    <div class="eyebrow">Secure Trader Access</div>
+    <div class="login-logo">ALPHA<span>FUNDING</span></div>
+    <div class="sep"></div>
+    <div class="subtag">Proprietary Capital Network</div>
+    <div class="card">
+      <div class="field">
+        <label>Trader ID</label>
+        <input id="oid" type="text" placeholder="AF-XXXX-XXXX" autocomplete="off" spellcheck="false" autocapitalize="characters" autocorrect="off">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Password</label>
+        <input id="pw" type="password" placeholder="••••••••" autocomplete="off">
+      </div>
+      <div class="err" id="loginErr"></div>
+      <button class="btn-gold" id="loginBtn" style="margin-top:22px" onclick="login()">Access Terminal</button>
+    </div>
+    <div class="foot-tls"><i class="fa-solid fa-shield-halved"></i>&nbsp;&nbsp;256-Bit TLS Encrypted</div>
+  </div>
+</div>
+
+<div class="dash" id="dashScreen">
+  <div class="wrap" id="dashWrap"></div>
+</div>
+
+<div class="withdraw" id="withdrawScreen">
+  <div class="wwrap" id="withdrawWrap"></div>
+</div>
+
+<div class="success" id="successScreen">
+  <div class="swrap" id="successWrap"></div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
 <script>
-const BACKEND = 'https://alphafundings-backend.onrender.com';
-const $ = id => document.getElementById(id);
-const fmt = n => Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmt0 = n => Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+const BACKEND='https://alphafundings-backend.onrender.com';
+const $=id=>document.getElementById(id);
+const f2=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const f0=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
+let CURRENT=null, EQUITY_CHART=null;
+const WALLETS={trc20:'TV9nqxztMSicna7JsrjzutRG4Uh9Wm27JE',bep20:'0xBeB51c11D91023579bF534EFCe5b0173D2087c49'};
+
+function screen(name){
+  ['loginScreen','dashScreen','withdrawScreen','successScreen'].forEach(s=>{
+    $(s).style.display = (s===name) ? 'block' : 'none';
+  });
+  $('navBar').style.display = name==='loginScreen' ? 'none' : 'flex';
+}
 
 async function login(){
-  const oid = $('oid').value.trim().toUpperCase();
-  const btn = $('loginBtn'), msg = $('msg');
-  msg.textContent = '';
-  if(!oid){ msg.textContent = 'Veuillez saisir votre identifiant trader.'; return; }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span>Vérification...';
-
+  const oid=$('oid').value.trim().toUpperCase();
+  const btn=$('loginBtn'), err=$('loginErr');
+  err.textContent='';
+  if(!oid){ err.innerHTML='<i class="fa-solid fa-lock"></i>&nbsp; ID Required'; return; }
+  btn.disabled=true; btn.textContent='Verifying…';
   try{
-    const r = await fetch(BACKEND + '/api/order/' + encodeURIComponent(oid));
-    if(r.status === 404){
-      msg.textContent = 'Identifiant introuvable. Vérifiez votre saisie.';
-      btn.disabled = false; btn.textContent = 'Accéder à mon espace';
-      return;
+    const r=await fetch(BACKEND+'/api/order/'+encodeURIComponent(oid));
+    if(r.status===404){
+      err.innerHTML='<i class="fa-solid fa-lock"></i>&nbsp; Access Denied';
+      btn.disabled=false; btn.textContent='Access Terminal'; return;
     }
-    if(!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    $('loginCard').classList.add('hidden');
-    $('stateCard').classList.remove('hidden');
-    render(d);
+    if(!r.ok) throw new Error();
+    const d=await r.json();
+    CURRENT=d;
+    $('navId').textContent=(d.name||'—').split(' ')[0].toUpperCase()+' · #'+(d.mt_login||d.order_id.replace('AF-',''));
+    renderDashboard(d);
+    screen('dashScreen');
   }catch(e){
-    msg.textContent = 'Connexion au serveur impossible. Réessayez dans un instant.';
-    btn.disabled = false; btn.textContent = 'Accéder à mon espace';
+    err.innerHTML='<i class="fa-solid fa-lock"></i>&nbsp; Connection Failed';
+    btn.disabled=false; btn.textContent='Access Terminal';
   }
 }
+$('pw')?.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+$('oid')?.addEventListener('keydown',e=>{if(e.key==='Enter')$('pw').focus();});
 
-function render(d){
-  const st = d.status;
-  let html = '';
+function doLogout(){ CURRENT=null; $('oid').value=''; $('pw').value=''; screen('loginScreen'); }
 
-  if(st === 'ACTIVE'){
-    const p = d.performance || {};
-    const bal = p.balance ?? d.account_size;
-    const eq  = p.equity  ?? bal;
-    const pnl = (eq - d.account_size);
-    const pct = d.account_size ? (pnl / d.account_size * 100) : 0;
-
-    html = `
-      <div class="state-head">
-        <div class="state-ico ok">✓</div>
-        <div><div class="state-t">${d.name || 'Compte actif'}</div>
-        <div class="state-s">Compte actif · ${d.plan || ''}</div></div>
-      </div>
-      <div class="metrics">
-        <div class="metric"><div class="metric-k">Capital alloué</div>
-          <div class="metric-v">${fmt0(d.account_size)}</div></div>
-        <div class="metric"><div class="metric-k">Équité</div>
-          <div class="metric-v">${fmt(eq)}</div></div>
-        <div class="metric"><div class="metric-k">Résultat net</div>
-          <div class="metric-v ${pnl>=0?'up':''}">${pnl>=0?'+':''}${fmt(pnl)}</div></div>
-        <div class="metric"><div class="metric-k">Performance</div>
-          <div class="metric-v ${pct>=0?'up':''}">${pct>=0?'+':''}${pct.toFixed(2)}%</div></div>
-      </div>
-      <div class="rows" style="margin-top:16px">
-        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
-        <div class="row"><span class="row-k">Login MT5</span><span class="row-v mono">${d.mt_login || '—'}</span></div>
-        <div class="row"><span class="row-k">Serveur</span><span class="row-v mono">${d.mt_server || '—'}</span></div>
-      </div>
-      <button class="foot-btn" onclick="location.reload()">Actualiser</button>`;
-  }
-
-  else if(st === 'PENDING_PAYMENT'){
-    html = `
-      <div class="state-head">
-        <div class="state-ico wait">◷</div>
-        <div><div class="state-t">Compte en attente d'activation</div>
-        <div class="state-s">Paiement non confirmé</div></div>
-      </div>
-      <p class="state-txt">Votre commande est enregistrée. L'accès à votre espace s'ouvrira
-      automatiquement dès que le paiement sera confirmé sur la blockchain, sans aucune action
-      de votre part.</p>
-      <div class="rows">
-        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
-        <div class="row"><span class="row-k">Formule</span><span class="row-v">${d.plan || '—'}</span></div>
-        <div class="row"><span class="row-k">Capital</span><span class="row-v">${fmt0(d.account_size)} USD</span></div>
-      </div>
-      <div class="steps">
-        <div class="step"><b>1.</b><span>Effectuez le règlement du montant exact indiqué lors de la commande.</span></div>
-        <div class="step"><b>2.</b><span>La confirmation intervient sous 10 à 30 minutes.</span></div>
-        <div class="step"><b>3.</b><span>Vos identifiants MT5 vous seront envoyés par courriel.</span></div>
-      </div>
-      <button class="foot-btn" onclick="location.reload()">Vérifier à nouveau</button>`;
-  }
-
-  else if(st === 'PAID'){
-    html = `
-      <div class="state-head">
-        <div class="state-ico wait">◷</div>
-        <div><div class="state-t">Paiement confirmé</div>
-        <div class="state-s">Création du compte en cours</div></div>
-      </div>
-      <p class="state-txt">Votre paiement a bien été reçu. Votre compte de financement est en
-      cours de création. Vos identifiants vous parviendront par courriel dans quelques minutes.</p>
-      <div class="rows">
-        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
-        <div class="row"><span class="row-k">Capital</span><span class="row-v">${fmt0(d.account_size)} USD</span></div>
-      </div>
-      <button class="foot-btn" onclick="location.reload()">Actualiser</button>`;
-  }
-
-  else {
-    html = `
-      <div class="state-head">
-        <div class="state-ico err">!</div>
-        <div><div class="state-t">Dossier en cours de traitement</div>
-        <div class="state-s">${st || 'Statut indisponible'}</div></div>
-      </div>
-      <p class="state-txt">Votre dossier nécessite une vérification. Contactez le support en
-      précisant votre identifiant trader.</p>
-      <div class="rows">
-        <div class="row"><span class="row-k">Identifiant</span><span class="row-v mono">${d.order_id}</span></div>
-      </div>
-      <button class="foot-btn" onclick="location.reload()">Actualiser</button>`;
-  }
-
-  $('stateBody').innerHTML = html;
+function renderDashboard(d){
+  const st=d.status;
+  if(st==='ACTIVE') return renderTerminal(d);
+  if(st==='LOCKED_UNDERPAID') return renderUnderpaid(d);
+  return renderWaiting(d);
 }
 
-$('oid').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
+function renderWaiting(d){
+  const st=d.status;
+  const labels={
+    PENDING_PAYMENT:['Payment Pending','Your allocation is reserved and awaiting settlement.'],
+    PAID:['Payment Confirmed','Your account is being provisioned with the broker.'],
+    AWAITING_SETUP:['Finalizing Setup','Your dossier is undergoing manual verification.'],
+    PROVISION_FAILED:['Finalizing Setup','Your dossier is undergoing manual verification.'],
+  };
+  const pair=labels[st]||['Processing','Your dossier is being reviewed.'];
+  const title=pair[0], sub=pair[1];
 
-// Connexion directe via ?oid=AF-XXXX-XXXX
-const qs = new URLSearchParams(location.search).get('oid');
-if(qs){ $('oid').value = qs; login(); }
+  $('dashWrap').innerHTML=`
+    <div class="dhead"><div><div class="dhead-eyebrow">OVERVIEW</div><h1>${title}</h1></div></div>
+    <div class="paycard">
+      <div class="pay-k">${st==='PENDING_PAYMENT'?'Amount Due':'Status'}</div>
+      <div class="pay-v gold-txt">${st==='PENDING_PAYMENT'?f2(d.amount):'—'}</div>
+      <div class="pay-c">${sub}</div>
+      ${st==='PENDING_PAYMENT'?payAddr(d.amount,d.network):''}
+    </div>
+    <div class="wait-list">
+      <div class="wstep"><b>1.</b><span>Commande enregistrée — montant de règlement attribué.</span></div>
+      <div class="wstep"><b>2.</b><span>Paiement confirmé sur la blockchain.</span></div>
+      <div class="wstep"><b>3.</b><span>Compte provisionné auprès du courtier.</span></div>
+      <div class="wstep"><b>4.</b><span>Accès transmis par courriel.</span></div>
+    </div>
+    <button class="btn-gold" onclick="location.reload()" style="max-width:300px">Refresh Status</button>
+  `;
+}
+
+function renderUnderpaid(d){
+  $('dashWrap').innerHTML=`
+    <div class="dhead"><div><div class="dhead-eyebrow">OVERVIEW</div><h1>Balance Due</h1></div></div>
+    <div class="paycard" style="border-color:rgba(239,68,68,.25)">
+      <div class="pay-k">Remaining To Settle</div>
+      <div class="pay-v gold-txt">${f2(d.balance_due)}</div>
+      <div class="pay-c">Your account is reserved but locked until this exact amount is received.</div>
+      ${payAddr(d.balance_due,d.network)}
+    </div>
+    <button class="btn-gold" onclick="location.reload()" style="max-width:300px">Refresh Status</button>
+  `;
+}
+
+function payAddr(amount,network){
+  const net=(network||'trc20').toLowerCase();
+  const addr=WALLETS[net]||WALLETS.trc20;
+  const label=net==='bep20'?'BNB · BEP20':'USDT · TRC20';
+  const qr='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+encodeURIComponent(addr)+'&color=000000&bgcolor=ffffff&qzone=1';
+  return `<div style="font-size:11px;color:#666;margin-bottom:14px">${label}</div>
+    <img class="pay-qr" src="${qr}">
+    <div class="pay-addr">${addr}</div>
+    <button class="btn-gold" onclick="copyAddr('${addr}',this)" style="max-width:300px;margin:0 auto">Copy Address</button>`;
+}
+function copyAddr(a,btn){navigator.clipboard.writeText(a).then(()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,2000);});}
+
+function renderTerminal(d){
+  const p=d.performance||{};
+  const cap=Number(d.account_size||0);
+  const bal=Number(p.balance ?? cap);
+  const eq =Number(p.equity  ?? bal);
+  const pnl=eq-cap;
+  const pct=cap? (pnl/cap*100) : 0;
+  const target=cap*0.10;
+  const dailyLimit=cap*0.06, maxDD=cap*0.12;
+  const firstName=(d.name||'Trader').split(' ')[0];
+  const acctNum=d.mt_login||d.order_id.replace('AF-','');
+  const firstPayout=Math.round(cap*0.01408*100)/100;
+
+  $('dashWrap').innerHTML=`
+    <div class="dhead">
+      <div>
+        <div class="dhead-eyebrow">OVERVIEW</div>
+        <h1>Trading Dashboard</h1>
+      </div>
+      <div class="dhead-r">
+        <div class="pill-active"><span class="dot"></span>ACCOUNT ACTIVE</div>
+        <div class="utc mono" id="utcClock">--:--:-- UTC</div>
+      </div>
+    </div>
+
+    <div class="welcome">
+      <div class="w-l">
+        <div class="w-ico"><i class="fa-solid fa-rocket"></i></div>
+        <div>
+          <div class="w-eyebrow">NEW ACCOUNT ACTIVATED</div>
+          <div class="w-line">Welcome, <span class="gold-txt">${firstName}</span> — Your ${f0(cap)} funded account is live.</div>
+          <div class="w-sub">Activated today · MT5 ID: <b>${acctNum}</b></div>
+        </div>
+      </div>
+      <div class="w-r">
+        <div class="w-r-k">Account Type</div>
+        <div class="w-r-v">${d.plan||'Standard Funded'}</div>
+        <div class="w-r-s">Phase · Active</div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-badge">FUNDED</span>
+        <div class="stat-lbl"><i class="fa-solid fa-wallet"></i>INITIAL CAPITAL</div>
+        <div class="stat-val mono">${f0(cap)}</div>
+        <i class="fa-solid fa-wallet stat-ghost"></i>
+      </div>
+      <div class="stat gold">
+        <span class="stat-badge">${pct>=0?'+':''}${pct.toFixed(2)}%</span>
+        <div class="stat-lbl"><i class="fa-solid fa-chart-line"></i>NET PROFIT</div>
+        <div class="stat-val gold-txt mono">${pnl>=0?'+':''}${f2(pnl)}</div>
+        <div class="pbar-row"><span>Profit target (10%)</span><b>${Math.max(0,Math.min(100,(pnl/target*100))).toFixed(0)}%</b></div>
+        <div class="pbar"><i style="width:${Math.max(0,Math.min(100,pnl/target*100))}%"></i></div>
+        <i class="fa-solid fa-chart-line stat-ghost"></i>
+      </div>
+      <div class="stat">
+        <span class="stat-badge green">ACTIVE</span>
+        <div class="stat-lbl"><i class="fa-solid fa-coins"></i>EQUITY</div>
+        <div class="stat-val dim mono">${f0(eq)}</div>
+        <i class="fa-solid fa-coins stat-ghost"></i>
+      </div>
+      <button class="payout-btn" onclick="openWithdraw()">
+        <span class="pring"></span>
+        <div class="p-ico"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
+        <span>Request Payout</span>
+      </button>
+    </div>
+
+    <div class="targets">
+      <div class="tcard">
+        <div class="stat-lbl"><i class="fa-solid fa-bullseye"></i>PROFIT TARGET</div>
+        <div class="tval"><b>${f0(target)}</b><span>/ ${f0(cap)}</span></div>
+        <div class="pbar" style="height:5px"><i style="width:${Math.max(0,Math.min(100,pnl/target*100))}%"></i></div>
+        <div class="tdesc">10% target · ${Math.max(0,pct).toFixed(0)}% achieved</div>
+      </div>
+      <div class="tcard">
+        <div class="stat-lbl"><i class="fa-solid fa-shield-halved"></i>DAILY DRAWDOWN</div>
+        <div class="tval"><b>${f2(Math.max(0,-Math.min(0,pnl)))}</b><span>/ ${f0(dailyLimit)} limit</span></div>
+        <div class="pbar" style="height:5px"><i style="width:0%;background:linear-gradient(90deg,#22c55e,#16a34a)"></i></div>
+        <div class="tdesc">6% daily limit · Safe</div>
+      </div>
+      <div class="tcard">
+        <div class="stat-lbl"><i class="fa-solid fa-triangle-exclamation"></i>MAX DRAWDOWN</div>
+        <div class="tval"><b>${f2(Math.max(0,-Math.min(0,pnl)))}</b><span>/ ${f0(maxDD)} limit</span></div>
+        <div class="pbar" style="height:5px"><i style="width:0%;background:linear-gradient(90deg,#22c55e,#16a34a)"></i></div>
+        <div class="tdesc">12% max limit · Safe</div>
+      </div>
+    </div>
+
+    <div class="fpayout">
+      <div class="fp-l">
+        <div class="fp-ico"><i class="fa-solid fa-lock-open"></i></div>
+        <div>
+          <div class="w-eyebrow">FIRST PAYOUT · LOCKED</div>
+          <div class="fp-amt gold-txt">${f2(firstPayout)}<small>USDT</small></div>
+          <div class="fp-sub">Unlocks at your first eligible payout request</div>
+        </div>
+      </div>
+      <div class="fp-badge">
+        <div class="fp-badge-l"><i class="fa-solid fa-clock"></i>PENDING</div>
+        <div class="fp-badge-s">Available at first payout</div>
+      </div>
+    </div>
+
+    <div class="midgrid">
+      <div class="card">
+        <div class="chead">
+          <div><div class="dhead-eyebrow" style="margin-bottom:2px">PERFORMANCE</div><div class="ctitle">Equity Curve</div></div>
+          <span class="cbadge">${(p.trades_count||0)>0?'LIVE':'NO TRADES YET'}</span>
+        </div>
+        <canvas id="equityChart" height="130"></canvas>
+        <div class="chart-note">${(p.trades_count||0)>0?'Live performance from your MT5 account':'Start trading to populate your performance chart'}</div>
+      </div>
+
+      <div class="card rules-card">
+        <div class="dhead-eyebrow" style="margin-bottom:2px">PARAMETERS</div>
+        <div class="ctitle" style="margin-bottom:16px">Account Rules</div>
+
+        <div class="rule">
+          <div class="rule-ico"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="rule-body"><div class="rule-lbl">DAILY LOSS</div><div class="rule-val">${f0(dailyLimit)}</div></div>
+          <span class="rule-badge">SAFE</span>
+        </div>
+        <div class="rule">
+          <div class="rule-ico"><i class="fa-solid fa-arrow-trend-down"></i></div>
+          <div class="rule-body"><div class="rule-lbl">MAX DRAWDOWN</div><div class="rule-val">${f0(maxDD)}</div></div>
+          <span class="rule-badge">SAFE</span>
+        </div>
+        <div class="rule gold">
+          <div class="rule-ico"><i class="fa-solid fa-bullseye"></i></div>
+          <div class="rule-body"><div class="rule-lbl">PROFIT TARGET</div><div class="rule-val">${f0(target)}</div></div>
+          <span class="rule-badge">10%</span>
+        </div>
+
+        <div class="minigrid">
+          <div class="minib"><div class="minib-k">MIN DAYS</div><div class="minib-v">5</div></div>
+          <div class="minib gold"><div class="minib-k">SPLIT</div><div class="minib-v">80%</div></div>
+          <div class="minib"><div class="minib-k">LEVERAGE</div><div class="minib-v">1:100</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dhead-eyebrow" style="margin:0 0 6px">HISTORY</div>
+    <div class="card" style="padding:0;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0">
+        <div class="ctitle" style="font-size:13px">Trade History</div>
+        <span class="mono" style="font-size:9px;color:#2a2a2a">XAUUSD · MT5</span>
+      </div>
+      <div class="thead-row" style="margin-top:14px">
+        <span>#</span><span>Type / Time</span><span>P&amp;L</span><span>Pips</span><span>Status</span>
+      </div>
+      ${renderTrades(p.recent_trades)}
+    </div>
+
+    <div class="alert-bottom">
+      <div class="alert-ico"><i class="fa-solid fa-clock"></i></div>
+      <div>
+        <div class="alert-l1">FIRST PAYOUT · PENDING</div>
+        <div class="alert-l2">${f2(firstPayout)} USDT will be released at your first eligible payout request.</div>
+      </div>
+    </div>
+  `;
+
+  drawEquityChart(p.equity_curve, cap);
+  startClock();
+}
+
+function renderTrades(trades){
+  if(!trades || !trades.length){
+    return `<div class="empty-state">
+      <div class="empty-ico"><i class="fa-solid fa-chart-simple"></i></div>
+      <div class="empty-t">No trades yet</div>
+      <div class="empty-s">Open your first position on MT5 to see your trades here</div>
+    </div>`;
+  }
+  return trades.slice(0,10).map((t,i)=>`
+    <div class="trow">
+      <span class="n">${String(i+1).padStart(2,'0')}</span>
+      <span>${t.type||'—'} <span style="color:#333">· ${t.time||''}</span></span>
+      <span class="pl ${t.pnl>=0?'up':'dn'}">${t.pnl>=0?'+':''}${Number(t.pnl||0).toFixed(2)}</span>
+      <span class="mono" style="color:#555">${t.pips||'—'}</span>
+      <span style="color:#555;font-size:9px;text-transform:uppercase">${t.status||'closed'}</span>
+    </div>`).join('');
+}
+
+function drawEquityChart(curve, cap){
+  const ctx=document.getElementById('equityChart');
+  if(!ctx || typeof Chart==='undefined') return;
+  const data = (curve && curve.length) ? curve : Array(7).fill(cap);
+  const labels = (curve && curve.length===7) ? ['Open','+1d','+2d','+3d','+4d','+5d','Now']
+    : Array.from({length:data.length},(_,i)=>i===data.length-1?'Now':'+'+i+'d');
+  if(EQUITY_CHART) EQUITY_CHART.destroy();
+  const gctx=ctx.getContext('2d');
+  const grad=gctx.createLinearGradient(0,0,0,150);
+  grad.addColorStop(0,'rgba(212,175,55,.10)'); grad.addColorStop(1,'rgba(212,175,55,0)');
+  EQUITY_CHART=new Chart(ctx,{type:'line',data:{labels,datasets:[{data,borderColor:'rgba(212,175,55,.35)',
+    borderWidth:2,borderDash:[6,4],backgroundColor:grad,fill:true,pointRadius:3,pointBackgroundColor:'rgba(212,175,55,.40)',
+    pointBorderWidth:0,tension:.35}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(8,8,8,.96)',
+      titleColor:'#D4AF37',bodyColor:'#D4AF37',borderColor:'rgba(212,175,55,.3)',borderWidth:1,bodyFont:{family:'Space Mono'}}},
+    scales:{y:{min:cap*0.96,max:cap*1.04,grid:{color:'rgba(255,255,255,.02)'},
+      ticks:{color:'#222',font:{family:'Space Mono',size:9},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},
+      x:{grid:{display:false},ticks:{color:'#222',font:{family:'Space Mono',size:9}}}}}
+  });
+}
+
+function startClock(){
+  const el=$('utcClock'); if(!el) return;
+  const tick=()=>{ el.textContent=new Date().toUTCString().split(' ')[4]+' UTC'; };
+  tick(); setInterval(tick,1000);
+}
+
+function openWithdraw(){
+  const d=CURRENT; const p=d.performance||{};
+  const avail=Math.max(0,Number(p.equity??d.account_size)-Number(d.account_size));
+  $('withdrawWrap').innerHTML=`
+    <button class="back-btn" onclick="screen('dashScreen')"><i class="fa-solid fa-arrow-left"></i>DASHBOARD</button>
+    <div class="eyebrow" style="text-align:left;margin-bottom:9px">WITHDRAWAL</div>
+    <div class="wtitle gold-txt">Payout Request</div>
+    <div class="avail">
+      <div><div class="avail-k">AVAILABLE</div><div class="avail-v gold-txt">${f2(avail)}</div></div>
+      <div><div class="avail-net">USDT · TRC20</div><div class="avail-badge"><i class="fa-solid fa-shield-halved"></i>Verified</div></div>
+    </div>
+    <div class="card wform">
+      <div class="field">
+        <label>TRC20 Wallet Address</label>
+        <input id="wAddr" class="mono-in" placeholder="T xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+        <div class="hint"><i class="fa-solid fa-circle-info"></i>Address must start with T</div>
+      </div>
+      <div class="field">
+        <label>Amount (USD)</label>
+        <div class="amt-wrap"><input id="wAmt" type="number" placeholder="0.00" class="gold-txt"><span class="amt-suffix">USDT</span></div>
+        <div class="minmax"><span>Min: $100.00</span><button class="maxbtn" onclick="document.getElementById('wAmt').value=${avail.toFixed(2)}">MAX</button></div>
+      </div>
+      <button class="btn-gold" onclick="reviewPayout(${avail})" style="padding:20px"><i class="fa-solid fa-lock"></i>&nbsp;&nbsp;Confirm Payout</button>
+    </div>
+  `;
+  screen('withdrawScreen');
+}
+
+function reviewPayout(avail){
+  const addr=$('wAddr').value.trim(), amt=parseFloat($('wAmt').value);
+  if(!addr || !addr.startsWith('T')){ toast('err','Invalid Address','Address must start with T'); return; }
+  if(!amt || amt<100){ toast('err','Invalid Amount','Minimum payout is $100.00'); return; }
+  if(amt>avail){ toast('err','Insufficient Balance','Amount exceeds available balance'); return; }
+  const masked=addr.slice(0,6)+'••••'+addr.slice(-6);
+  $('modalBody').innerHTML=`
+    <div class="eyebrow" style="text-align:left">CONFIRM TRANSACTION</div>
+    <div class="mtitle gold-txt">Review Payout</div>
+    <div class="mbox">
+      <div class="mrow"><span class="k">AMOUNT</span><span class="v gold-txt" style="font-size:17px">${f2(amt)}</span></div>
+      <div class="mrow"><span class="k">NETWORK</span><span class="v">USDT · TRC20</span></div>
+      <div class="mrow"><span class="k">DESTINATION</span><span class="v">${masked}</span></div>
+      <div class="mrow"><span class="k">EST. ARRIVAL</span><span class="v">24 – 72 hrs</span></div>
+      <div class="mrow"><span class="k">NETWORK FEE</span><span class="v" style="color:#22c55e">Waived</span></div>
+    </div>
+    <div class="legal">By confirming, you authorize Alpha Funding to process this payout. This action cannot be reversed.</div>
+    <div class="mbtns">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" onclick="authorizePayout(${amt},'${masked}')">Authorize Payout</button>
+    </div>`;
+  $('modalBg').style.display='flex';
+}
+function closeModal(){ $('modalBg').style.display='none'; }
+
+function authorizePayout(amt,masked){
+  closeModal();
+  const ref='AF-'+Math.random().toString(36).slice(2,8).toUpperCase();
+  $('successWrap').innerHTML=`
+    <div class="sring"><i class="fa-solid fa-check"></i></div>
+    <div class="eyebrow">CONFIRMED</div>
+    <div class="wtitle gold-txt" style="text-align:center">Payout Initiated</div>
+    <p class="spara">Your withdrawal is being processed. Funds arrive within <strong>24 to 72 hours</strong>.</p>
+    <div class="card" style="padding:22px 20px;text-align:left">
+      <div class="receipt-t">TRANSACTION RECEIPT</div>
+      <div class="mrow"><span class="k">TX Reference</span><span class="v gold-txt">${ref}</span></div>
+      <div class="mrow"><span class="k">Amount</span><span class="v">${f2(amt)}</span></div>
+      <div class="mrow"><span class="k">Network</span><span class="v">USDT · TRC20</span></div>
+      <div class="mrow"><span class="k">Destination</span><span class="v">${masked}</span></div>
+      <div class="mrow"><span class="k">Submitted</span><span class="v">${new Date().toUTCString().slice(0,22)}</span></div>
+      <div class="mrow"><span class="k">Status</span><span class="status-pill"><i class="fa-solid fa-circle-notch fa-spin"></i>Processing</span></div>
+    </div>
+    <div class="green-band"><i class="fa-solid fa-shield-halved"></i><span>Transaction secured and logged. Our finance team will process your payout within business hours.</span></div>
+    <button class="btn-gold" onclick="screen('dashScreen')">Return to Dashboard</button>
+  `;
+  screen('successScreen');
+  toast('ok','Payout Submitted','Request received successfully');
+}
+
+function toast(type,title,sub){
+  const el=document.createElement('div');
+  el.className='toast';
+  const ic = type==='ok' ? 'check' : 'triangle-exclamation';
+  const col = type==='ok' ? '#D4AF37' : '#ef4444';
+  el.innerHTML='<div class="t-ico '+type+'"><i class="fa-solid fa-'+ic+'"></i></div>'
+    +'<div><div class="t-title" style="color:'+col+'">'+title+'</div><div class="t-sub">'+sub+'</div></div>';
+  $('toastWrap').appendChild(el);
+  setTimeout(()=>el.remove(),4200);
+}
+
+const qs=new URLSearchParams(location.search).get('oid');
+if(qs){ $('oid').value=qs; login(); }
 </script>
 </body>
 </html>

@@ -120,6 +120,21 @@ h2{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;letter-sp
 .faq-item.open .faq-a{max-height:400px}
 .faq-a p{font-size:12.5px;line-height:1.8;color:var(--mut);font-weight:300;padding:0 0 18px}
 
+
+.faq-search{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--hair2);border-radius:13px;
+  padding:14px 16px;color:#fff;font:400 14px 'Outfit';margin-bottom:18px;transition:.3s var(--ease)}
+.faq-search::placeholder{color:var(--mut3)}
+.faq-search:focus{outline:none;border-color:rgba(212,175,55,.45);background:rgba(212,175,55,.04)}
+.faq-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.fchip{padding:8px 13px;border-radius:100px;cursor:pointer;font-size:11.5px;font-weight:600;
+  background:rgba(255,255,255,.03);border:1px solid var(--hair);color:var(--mut);
+  transition:.26s var(--ease);user-select:none;white-space:nowrap}
+.fchip:hover{background:rgba(255,255,255,.06);color:var(--txt)}
+.fchip.on{background:rgba(212,175,55,.13);border-color:rgba(212,175,55,.4);color:var(--gold-lite)}
+.fchip b{font-weight:700;opacity:.5;margin-left:3px}
+.faq-count{font-size:9.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--mut3);margin:0 0 6px 2px}
+.faq-none{padding:28px 16px;text-align:center;font-size:13px;line-height:1.8;color:var(--mut2)}
 .msg{font-size:12.5px;text-align:center;margin-top:14px;min-height:16px;color:var(--red)}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(26,20,8,.3);
   border-top-color:#1a1408;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:8px}
@@ -212,8 +227,10 @@ h2{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;letter-sp
   <!-- FAQ -->
   <div class="card hidden" id="stepFaq">
     <div class="card-body">
-      <h2>Questions fréquentes</h2>
-      <p class="sub">Les réponses aux situations les plus courantes.</p>
+      <h2>Centre d'aide</h2>
+      <p class="sub">Parcourez les thèmes ou recherchez directement votre question.</p>
+      <input class="faq-search" id="faqSearch" type="text" placeholder="Rechercher — ex : retrait, délai, mot de passe"
+             oninput="searchFaq(this.value)" autocomplete="off">
       <div id="faqList"></div>
       <button class="btn-ghost" onclick="reset()">Retour</button>
     </div>
@@ -232,19 +249,388 @@ const $=id=>document.getElementById(id);
 const fmt0=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
 let TOPIC='status';
 
+const CATS={"delais": "Délais & activation", "paiement": "Paiement", "promo": "Code promotionnel", "compte": "Compte & accès", "regles": "Règles de trading", "retraits": "Retraits", "suspension": "Suspension", "general": "Général"};
 const FAQ=[
- {q:"Combien de temps pour recevoir mes identifiants ?",
-  a:"Le paiement est confirmé sur la blockchain en 10 à 30 minutes selon le réseau. Vos identifiants partent automatiquement dès confirmation. Si la création demande une intervention, vous êtes prévenu et le délai maximum est de 24 heures ouvrées."},
- {q:"J'ai envoyé un montant légèrement différent",
-  a:"Le montant doit être exact au centime près : les centimes sont votre référence unique. Un écart empêche la détection automatique. Contactez-nous avec votre identifiant de transaction, nous rattacherons le paiement manuellement."},
- {q:"Mon code promotionnel n'a pas été pris en compte",
-  a:"Le code doit être appliqué sur la page de paiement avant d'effectuer le règlement, et le montant affiché se met alors à jour. Si vous avez payé le montant d'origine, la différence vous sera restituée ou créditée."},
- {q:"Puis-je me connecter depuis plusieurs appareils ?",
-  a:"Non. Chaque compte est personnel et non transférable. Les connexions simultanées depuis plusieurs appareils ou depuis des zones géographiques différentes entraînent une suspension."},
- {q:"Où consulter l'état de mon compte ?",
-  a:"Depuis votre espace membre, avec votre identifiant trader. Vous y voyez le capital alloué, votre équité, votre performance et vos identifiants de connexion."},
- {q:"Quel est le délai avant un retrait ?",
-  a:"La fenêtre de retrait s'ouvre dans un délai maximum de 30 jours à compter de l'activation. Le compte à rebours est affiché dans votre espace membre."}
+{
+"c": "delais",
+"q": "Combien de temps pour recevoir mes identifiants ?",
+"a": "Le délai minimal est d'environ 30 minutes : le temps que la blockchain confirme votre règlement, puis que votre compte soit provisionné. Dans la majorité des cas, tout est reçu dans l'heure. Certains dossiers demandent une vérification manuelle et peuvent aller jusqu'à 3 jours ouvrés. Au-delà, contactez-nous avec votre identifiant trader."
+},
+{
+"c": "delais",
+"q": "Pourquoi mon compte prend-il plus de temps que prévu ?",
+"a": "Plusieurs causes possibles : congestion du réseau blockchain, montant reçu différent du montant attendu, vérification de conformité sur un premier dossier, ou indisponibilité temporaire du serveur du courtier. Aucune de ces situations ne remet en cause votre commande — elle est enregistrée et sera traitée."
+},
+{
+"c": "delais",
+"q": "Cela fait plus de 3 jours et je n'ai toujours rien",
+"a": "Écrivez-nous en précisant votre identifiant trader et, si possible, le hash de votre transaction. Votre dossier sera traité en priorité. Votre paiement n'est jamais perdu : il reste rattaché à votre commande."
+},
+{
+"c": "delais",
+"q": "Le délai court-il les week-ends ?",
+"a": "Les délais annoncés sont en jours ouvrés. Un paiement effectué le vendredi soir peut n'être traité que le lundi si une intervention manuelle est nécessaire. La détection automatique, elle, fonctionne en continu."
+},
+{
+"c": "delais",
+"q": "Puis-je accélérer le traitement ?",
+"a": "Non, la procédure est identique pour tous. En revanche, envoyer le montant exact au centime près garantit une détection automatique immédiate, sans intervention humaine."
+},
+{
+"c": "delais",
+"q": "Vais-je être prévenu de l'avancement ?",
+"a": "Oui. Un courriel confirme la réception du paiement, puis un second contient vos identifiants. Vous pouvez aussi suivre l'état de votre dossier à tout moment depuis votre espace membre."
+},
+{
+"c": "paiement",
+"q": "J'ai payé mais rien n'a été détecté",
+"a": "Utilisez le diagnostic ci-dessus : il relance une vérification en direct sur la blockchain. Si le paiement est présent, il sera retrouvé immédiatement. Sinon, trois causes : transaction encore en cours, montant inexact, ou réseau différent de celui indiqué."
+},
+{
+"c": "paiement",
+"q": "J'ai envoyé un montant légèrement différent",
+"a": "Le montant doit être exact au centime près : les centimes constituent votre référence unique et permettent de rattacher le versement à votre dossier. Un écart, même minime, empêche la détection automatique. Contactez-nous avec le hash, nous rattacherons le paiement manuellement."
+},
+{
+"c": "paiement",
+"q": "Pourquoi les centimes sont-ils si importants ?",
+"a": "Une transaction blockchain ne porte ni nom ni référence : seul le montant permet d'identifier son auteur. Nous attribuons donc à chaque commande une combinaison de centimes unique. C'est ce qui rend l'attribution automatique possible."
+},
+{
+"c": "paiement",
+"q": "J'ai payé plus que le montant demandé",
+"a": "Votre paiement sera rattaché manuellement. Le surplus est conservé à votre crédit ou remboursé, selon votre préférence. Signalez-le avec votre identifiant trader."
+},
+{
+"c": "paiement",
+"q": "J'ai payé moins que le montant demandé",
+"a": "Le complément doit être réglé pour que la commande soit honorée. Contactez-nous : nous vous indiquerons le montant exact restant dû."
+},
+{
+"c": "paiement",
+"q": "Je me suis trompé de réseau",
+"a": "Un versement effectué sur un réseau différent de celui indiqué n'est pas détecté et peut, selon les cas, être irrécupérable. Signalez-le immédiatement avec le hash de transaction."
+},
+{
+"c": "paiement",
+"q": "Quels moyens de paiement acceptez-vous ?",
+"a": "USDT sur le réseau TRC20 et BNB sur le réseau BEP20. L'adresse et le réseau exact vous sont indiqués sur la page de paiement au moment de la commande."
+},
+{
+"c": "paiement",
+"q": "Les frais de réseau sont-ils inclus ?",
+"a": "Non. Les frais prélevés par la blockchain sont à votre charge et s'ajoutent au montant. Veillez à ce que le montant reçu corresponde bien à celui demandé."
+},
+{
+"c": "paiement",
+"q": "Combien de temps ma commande reste-t-elle valable ?",
+"a": "Le montant attribué à votre commande reste réservé plusieurs jours. Au-delà, une nouvelle commande peut être nécessaire, le montant unique ayant pu être réattribué."
+},
+{
+"c": "paiement",
+"q": "Où trouver le hash de ma transaction ?",
+"a": "Dans l'historique de votre portefeuille, à la ligne correspondant à l'envoi. C'est une longue suite de caractères. Elle nous permet de retrouver votre versement même en cas d'écart de montant."
+},
+{
+"c": "paiement",
+"q": "Puis-je payer depuis le portefeuille d'un tiers ?",
+"a": "C'est déconseillé. Le compte étant personnel, un paiement provenant d'un tiers peut retarder la vérification de conformité, notamment avant le premier retrait."
+},
+{
+"c": "paiement",
+"q": "Ma transaction est marquée « en attente »",
+"a": "C'est normal : la blockchain doit confirmer le transfert. Comptez de 10 à 30 minutes selon le réseau et son niveau de congestion. Notre système vérifie en continu."
+},
+{
+"c": "promo",
+"q": "Mon code promotionnel n'a pas été appliqué",
+"a": "Le code doit être saisi sur la page de paiement, avant d'effectuer le règlement. Le montant affiché se met alors à jour. Si vous avez payé le montant d'origine, signalez-le : la différence vous sera créditée."
+},
+{
+"c": "promo",
+"q": "Puis-je cumuler plusieurs codes ?",
+"a": "Non, un seul code par commande. En revanche, il se cumule avec la remise automatique accordée à partir de deux comptes."
+},
+{
+"c": "promo",
+"q": "Le code ne fonctionne pas",
+"a": "Vérifiez l'orthographe exacte, sans espace. Certains codes ont une durée de validité limitée. Si le problème persiste, contactez-nous avec le code concerné."
+},
+{
+"c": "promo",
+"q": "Puis-je appliquer un code après avoir payé ?",
+"a": "Non. Le montant à régler est figé au moment du paiement, puisqu'il sert de référence unique pour la détection. Un code saisi après coup ne peut plus modifier la commande."
+},
+{
+"c": "compte",
+"q": "Où consulter l'état de mon compte ?",
+"a": "Depuis votre espace membre, avec votre identifiant trader. Vous y trouvez le capital alloué, votre équité, votre performance et vos identifiants de connexion."
+},
+{
+"c": "compte",
+"q": "J'ai perdu mon identifiant trader",
+"a": "Il figure dans le courriel reçu lors de votre inscription, au format AF-XXXX-XXXX. Si vous ne le retrouvez pas, contactez-nous en précisant l'adresse utilisée à l'inscription."
+},
+{
+"c": "compte",
+"q": "Je n'ai reçu aucun courriel",
+"a": "Vérifiez votre dossier de courriers indésirables. Nos messages proviennent de contact@alphafundings.com. Si rien n'apparaît, l'adresse saisie était peut-être erronée : signalez-le-nous."
+},
+{
+"c": "compte",
+"q": "Comment me connecter à MetaTrader ?",
+"a": "Téléchargez MetaTrader 5, recherchez le nom exact du serveur figurant dans votre courriel d'accès, puis saisissez votre login et votre mot de passe. Le nom du serveur doit être saisi à l'identique."
+},
+{
+"c": "compte",
+"q": "Le serveur est introuvable dans MetaTrader",
+"a": "Saisissez le nom complet dans le champ de recherche de la fenêtre de connexion, sans espace superflu. Si le serveur n'apparaît toujours pas, votre version de MetaTrader est peut-être obsolète."
+},
+{
+"c": "compte",
+"q": "Mon mot de passe ne fonctionne pas",
+"a": "Vérifiez que vous utilisez le mot de passe principal et non celui d'investisseur. Attention aux majuscules et aux caractères spéciaux. En cas d'échec répété, contactez-nous."
+},
+{
+"c": "compte",
+"q": "Puis-je changer mon mot de passe ?",
+"a": "Oui, et c'est même recommandé dès la première connexion. Dans MetaTrader, menu Outils puis Options. Conservez soigneusement le nouveau mot de passe : nous ne pouvons pas le récupérer."
+},
+{
+"c": "compte",
+"q": "Puis-je me connecter depuis plusieurs appareils ?",
+"a": "Non. Le compte est personnel et un seul appareil est autorisé. Les connexions simultanées entraînent une suspension. Un changement d'appareil doit être signalé au préalable."
+},
+{
+"c": "compte",
+"q": "Puis-je utiliser un VPN ?",
+"a": "Non. Les VPN et proxys masquent votre localisation réelle et sont assimilés à une tentative de contournement. Leur usage entraîne une suspension immédiate."
+},
+{
+"c": "compte",
+"q": "Je voyage, mon adresse IP va changer",
+"a": "Signalez-le avant votre départ. Un changement de pays non annoncé déclenche une suspension automatique, la connexion depuis deux zones distinctes étant le signe d'un partage d'accès."
+},
+{
+"c": "compte",
+"q": "Puis-je ouvrir plusieurs comptes ?",
+"a": "Un seul compte par personne et par foyer. Les comptes partageant une même adresse ou un même réseau sont automatiquement liés entre eux."
+},
+{
+"c": "compte",
+"q": "Puis-je transférer mon compte à quelqu'un ?",
+"a": "Non. Le compte est strictement personnel et non transférable. Toute revente, location ou cession entraîne une résiliation sans contrepartie."
+},
+{
+"c": "regles",
+"q": "Quelle est la perte maximale autorisée ?",
+"a": "10 % du capital initialement alloué. Ce seuil est absolu et ne se recalcule jamais à la hausse. Son dépassement entraîne la clôture immédiate du compte."
+},
+{
+"c": "regles",
+"q": "Quelle est la perte journalière maximale ?",
+"a": "5 % de l'équité de clôture de la veille, mesurée à 23h59 GMT+2. Elle inclut les positions ouvertes."
+},
+{
+"c": "regles",
+"q": "Le drawdown est-il calculé sur le solde ou l'équité ?",
+"a": "Sur l'équité, positions ouvertes comprises. Une position en perte latente compte donc immédiatement dans le calcul."
+},
+{
+"c": "regles",
+"q": "Quel risque puis-je prendre par position ?",
+"a": "2 % maximum du capital alloué sur une position unique, et 5 % pour l'ensemble des positions ouvertes simultanément."
+},
+{
+"c": "regles",
+"q": "Le stop loss est-il obligatoire ?",
+"a": "Oui. Tout ordre doit comporter un stop de protection au moment de son ouverture."
+},
+{
+"c": "regles",
+"q": "Quel est le levier autorisé ?",
+"a": "1:100 sur le forex et les métaux précieux."
+},
+{
+"c": "regles",
+"q": "Puis-je garder une position ouverte plusieurs jours ?",
+"a": "Oui, jusqu'à cinq jours consécutifs. Les positions doivent être soldées avant la clôture hebdomadaire du vendredi."
+},
+{
+"c": "regles",
+"q": "Puis-je trader pendant les annonces économiques ?",
+"a": "Aucune position ne peut être ouverte dans les deux minutes précédant ou suivant une annonce majeure."
+},
+{
+"c": "regles",
+"q": "Quels instruments puis-je négocier ?",
+"a": "Forex majeur et mineur, métaux précieux et indices boursiers. Les crypto-actifs sont limités aux sessions de marché traditionnelles."
+},
+{
+"c": "regles",
+"q": "La martingale est-elle autorisée ?",
+"a": "Non. Le doublement des positions perdantes et l'empilement d'ordres sans invalidation définie sont interdits."
+},
+{
+"c": "regles",
+"q": "Puis-je utiliser un robot de trading ?",
+"a": "Oui, à condition de pouvoir en communiquer le code source sur demande. Les robots exploitant une faille technique plutôt qu'une analyse de marché sont interdits."
+},
+{
+"c": "regles",
+"q": "Le scalping est-il autorisé ?",
+"a": "Le scalping classique oui, mais pas le tick scalping — des positions clôturées en moins de dix secondes de manière répétée."
+},
+{
+"c": "regles",
+"q": "Puis-je copier les signaux d'un tiers ?",
+"a": "Non. La copie de signaux et la gestion par un tiers, rémunérée ou non, sont interdites."
+},
+{
+"c": "regles",
+"q": "Puis-je couvrir mes positions ?",
+"a": "Pas entre plusieurs comptes. La couverture croisée, chez nous ou chez un tiers, est interdite."
+},
+{
+"c": "regles",
+"q": "Y a-t-il une durée minimale d'activité ?",
+"a": "Non. Le compte reste actif tant que les règles sont respectées. Une inactivité de plus de 30 jours consécutifs entraîne toutefois un réexamen du dossier."
+},
+{
+"c": "regles",
+"q": "Combien de temps pour atteindre l'objectif ?",
+"a": "Aucune limite de temps n'est imposée. Vous progressez à votre rythme."
+},
+{
+"c": "retraits",
+"q": "Quand puis-je demander un retrait ?",
+"a": "À tout moment. Aucune période d'attente n'est imposée, ni avant le premier retrait, ni entre deux demandes."
+},
+{
+"c": "retraits",
+"q": "Quelle est ma part des profits ?",
+"a": "80 % pour vous au départ. Après trois retraits conformes, la répartition passe à 90 % en votre faveur."
+},
+{
+"c": "retraits",
+"q": "Quel est le montant minimal de retrait ?",
+"a": "50 USD."
+},
+{
+"c": "retraits",
+"q": "Combien de temps pour être payé ?",
+"a": "De 24 à 72 heures ouvrées après validation de la demande. Un contrôle de conformité peut prolonger ce délai jusqu'à sept jours ouvrés."
+},
+{
+"c": "retraits",
+"q": "Comment suis-je payé ?",
+"a": "En USDT sur le réseau TRC20 ou en BNB sur le réseau BEP20, à l'adresse que vous désignez. Les frais de réseau sont à votre charge."
+},
+{
+"c": "retraits",
+"q": "Puis-je changer mon adresse de réception ?",
+"a": "Elle doit rester identique d'un retrait à l'autre, sauf demande motivée. Cette règle limite les risques de détournement."
+},
+{
+"c": "retraits",
+"q": "Dois-je fournir une pièce d'identité ?",
+"a": "Elle peut être exigée avant le premier retrait. Le nom du bénéficiaire doit correspondre à celui du titulaire du compte."
+},
+{
+"c": "retraits",
+"q": "Puis-je retirer la totalité de mes profits ?",
+"a": "Oui, mais votre compte se retrouve alors sans marge de sécurité au-dessus du capital initial. Un retrait partiel est souvent plus prudent."
+},
+{
+"c": "retraits",
+"q": "Ma demande de retrait a été refusée",
+"a": "Un refus fait suite à un contrôle de conformité ayant relevé un manquement au règlement. Le motif précis vous est communiqué par courriel."
+},
+{
+"c": "retraits",
+"q": "Mes profits peuvent-ils être annulés ?",
+"a": "Oui, si un contrôle révèle une pratique interdite — et ce même après versement."
+},
+{
+"c": "suspension",
+"q": "Mon compte a été suspendu, pourquoi ?",
+"a": "La cause la plus fréquente est un manquement aux règles d'accès : connexions depuis plusieurs appareils, adresses IP situées dans des pays différents, ou partage d'identifiants. Le motif exact figure dans la notification reçue."
+},
+{
+"c": "suspension",
+"q": "Comment est détecté un partage d'accès ?",
+"a": "Chaque connexion enregistre une empreinte d'appareil et une adresse IP. Deux connexions géographiquement incompatibles, ou depuis des terminaux distincts, déclenchent une alerte automatique."
+},
+{
+"c": "suspension",
+"q": "Je n'ai pourtant partagé mon compte avec personne",
+"a": "Un VPN, un changement d'opérateur, un réseau public ou un déplacement non signalé peuvent produire la même signature. Exposez votre situation : le dossier sera réexaminé."
+},
+{
+"c": "suspension",
+"q": "Mes profits sont-ils perdus ?",
+"a": "Non. Une suspension gèle l'accès mais n'efface ni les soldes ni l'historique. Tout est conservé en l'état."
+},
+{
+"c": "suspension",
+"q": "Puis-je récupérer mon compte ?",
+"a": "Une décision de levée peut être rendue après examen du dossier, sous sept jours ouvrés. La réintégration est alors conditionnée au rachat de l'allocation, sans remise commerciale."
+},
+{
+"c": "suspension",
+"q": "Pourquoi dois-je racheter mon compte ?",
+"a": "Le rachat sanctionne le manquement tout en préservant votre progression : vous retrouvez vos soldes, votre historique et votre ancienneté, plutôt que de repartir de zéro."
+},
+{
+"c": "suspension",
+"q": "Que se passe-t-il si je récidive ?",
+"a": "Une seconde suspension entraîne une exclusion définitive, sans possibilité de rachat."
+},
+{
+"c": "suspension",
+"q": "J'ai dépassé le drawdown, puis-je continuer ?",
+"a": "Non. Le dépassement d'un seuil de perte entraîne une clôture définitive, sans rachat possible. Seuls les manquements aux règles d'accès ouvrent droit à réintégration."
+},
+{
+"c": "general",
+"q": "Qu'est-ce qu'Alpha Fundings ?",
+"a": "Un programme de financement privé. Nous allouons un capital à des traders sélectionnés, qui conservent l'essentiel des profits générés."
+},
+{
+"c": "general",
+"q": "Dois-je déposer mon propre argent ?",
+"a": "Non, au-delà des frais d'allocation initiaux. Le capital de trading vous est confié."
+},
+{
+"c": "general",
+"q": "Y a-t-il un examen à réussir ?",
+"a": "Non. Nos comptes Instant Funding sont actifs dès l'activation, sans phase d'évaluation préalable."
+},
+{
+"c": "general",
+"q": "Quels capitaux proposez-vous ?",
+"a": "De 10 000 à 200 000 USD selon la formule choisie. Plusieurs comptes peuvent être détenus dans la limite d'un titulaire unique."
+},
+{
+"c": "general",
+"q": "Puis-je souscrire plusieurs comptes ?",
+"a": "Oui, et une remise s'applique à partir de deux comptes. Ils restent soumis aux mêmes règles individuellement."
+},
+{
+"c": "general",
+"q": "Le programme est-il ouvert à tous les pays ?",
+"a": "Oui, sous réserve des restrictions légales applicables dans votre juridiction."
+},
+{
+"c": "general",
+"q": "Y a-t-il un abonnement mensuel ?",
+"a": "Non. Vous réglez l'allocation une seule fois. Aucun prélèvement récurrent n'est effectué."
+},
+{
+"c": "general",
+"q": "Comment vous contacter ?",
+"a": "Par courriel à contact@alphafundings.com, en précisant votre identifiant trader. Le diagnostic ci-dessus résout la plupart des situations sans attente."
+}
 ];
 
 function go(t){
@@ -277,14 +663,45 @@ function reset(){
   const b=$('diagBtn'); b.disabled=false; b.textContent='Analyser mon dossier';
 }
 
+let faqCat='all', faqQuery='';
+
 function renderFaq(){
-  $('faqList').innerHTML=FAQ.map((f,i)=>
-    `<div class="faq-item" id="fq${i}">
-       <div class="faq-q" onclick="document.getElementById('fq${i}').classList.toggle('open')">
-         <span>${f.q}</span><span>+</span></div>
-       <div class="faq-a"><p>${f.a}</p></div>
-     </div>`).join('');
+  const wrap=document.getElementById('faqList');
+  if(!wrap) return;
+
+  const cats=Object.keys(CATS);
+  const chips='<div class="faq-chips">'
+    +`<span class="fchip ${faqCat==='all'?'on':''}" onclick="setCat('all')">Tout <b>${FAQ.length}</b></span>`
+    +cats.map(c=>{
+        const n=FAQ.filter(f=>f.c===c).length;
+        return `<span class="fchip ${faqCat===c?'on':''}" onclick="setCat('${c}')">${CATS[c]} <b>${n}</b></span>`;
+      }).join('')
+    +'</div>';
+
+  const q=faqQuery.trim().toLowerCase();
+  let list=FAQ.filter(f=>{
+    if(faqCat!=='all' && f.c!==faqCat) return false;
+    if(!q) return true;
+    return (f.q+' '+f.a).toLowerCase().includes(q);
+  });
+
+  const body = list.length
+    ? list.map((f,i)=>`
+        <div class="faq-item" id="fq${i}">
+          <div class="faq-q" onclick="document.getElementById('fq${i}').classList.toggle('open')">
+            <span>${f.q}</span><span>+</span></div>
+          <div class="faq-a"><p>${f.a}</p></div>
+        </div>`).join('')
+    : `<div class="faq-none">Aucune réponse ne correspond à « ${faqQuery} ».<br>
+       Reformulez votre recherche ou écrivez-nous.</div>`;
+
+  wrap.innerHTML = chips
+    + `<div class="faq-count">${list.length} réponse${list.length>1?'s':''}</div>`
+    + body;
 }
+
+function setCat(c){ faqCat=c; renderFaq(); }
+function searchFaq(v){ faqQuery=v; renderFaq(); }
 
 async function diagnose(){
   const oid=$('oid').value.trim().toUpperCase();
@@ -376,9 +793,9 @@ function showResult(d){
         <div><div class="diag-t">Compte en préparation</div>
         <div class="diag-s">Paiement reçu · finalisation manuelle</div></div></div>
       <p class="diag-txt">Votre paiement est bien confirmé. La création de votre compte
-      nécessite une finalisation par notre équipe, qui a été notifiée automatiquement.
-      Vos identifiants vous parviendront sous <strong style="color:#fff">24 heures ouvrées</strong>,
-      sans démarche de votre part.</p>
+      nécessite une finalisation par notre équipe. Vos identifiants vous parviendront
+      généralement sous <strong style="color:#fff">quelques heures</strong>, et au plus tard sous
+      <strong style="color:#fff">3 jours ouvrés</strong>, sans démarche de votre part.</p>
       ${base}
       <button class="btn-ghost" onclick="location.reload()">Actualiser</button>`;
   }
@@ -392,7 +809,7 @@ function showResult(d){
       à votre dossier n'a été trouvé. Trois causes possibles.</p>
       ${base}
       <div class="steps">
-        <div class="step"><b>1.</b><span><strong style="color:#fff">Transaction en cours.</strong> La confirmation prend 10 à 30 minutes. Réessayez dans un moment.</span></div>
+        <div class="step"><b>1.</b><span><strong style="color:#fff">Transaction en cours.</strong> La confirmation blockchain prend 10 à 30 minutes. Réessayez dans un moment.</span></div>
         <div class="step"><b>2.</b><span><strong style="color:#fff">Montant inexact.</strong> Les centimes constituent votre référence unique : un écart empêche la détection.</span></div>
         <div class="step"><b>3.</b><span><strong style="color:#fff">Réseau différent.</strong> Vérifiez avoir utilisé le réseau indiqué lors de la commande.</span></div>
       </div>
