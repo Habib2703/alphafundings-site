@@ -764,9 +764,11 @@ function showResult(d){
       votre espace membre.</p>
       <div class="rows">
         <div class="row"><span class="row-k">Dossier</span><span class="row-v">${d.order_id}</span></div>
-        <div class="row"><span class="row-k">Login MT5</span><span class="row-v">${d.mt_login||'—'}</span></div>
-        <div class="row"><span class="row-k">Serveur</span><span class="row-v">${d.mt_server||'—'}</span></div>
+        <div class="row"><span class="row-k">Capital</span><span class="row-v">${fmt0(d.account_size)} USD</span></div>
       </div>
+      <p class="diag-txt" style="margin-top:14px;font-size:12px">
+        Vos identifiants de connexion (login et mot de passe) sont consultables uniquement
+        depuis votre espace membre sécurisé, avec votre mot de passe personnel.</p>
       <button class="btn" onclick="location.href='/espace-membre.html?oid=${d.order_id}'">Ouvrir mon espace membre</button>
       <button class="btn-ghost" onclick="reset()">Retour</button>`;
   }
