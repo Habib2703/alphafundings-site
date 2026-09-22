@@ -266,6 +266,24 @@ body{font-family:'Outfit',sans-serif;background:#050505;color:#fff;overflow-x:hi
 .t-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.13em}
 .t-sub{font-size:11px;color:#555;font-weight:500}
 
+.ma-list{display:flex;flex-direction:column;gap:12px}
+.ma-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:16px;
+  padding:18px 20px;cursor:pointer;transition:.2s}
+.ma-card:hover{border-color:rgba(212,175,55,.28);background:rgba(255,255,255,.035)}
+.ma-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.ma-plan{font-size:14px;font-weight:700;color:#f2f0ee;margin-bottom:3px}
+.ma-id{font-size:10.5px;color:rgba(255,255,255,.35)}
+.ma-badge{font-size:9px;font-weight:800;letter-spacing:.1em;padding:5px 10px;border-radius:100px;
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
+.ma-badge.on{background:rgba(34,197,94,.12);color:#22c55e}
+.ma-badge.warn{background:rgba(255,90,77,.12);color:#ff8a80}
+.ma-row{display:flex;gap:22px}
+.ma-stat{flex:1}
+.ma-k{font-size:8.5px;letter-spacing:.14em;color:rgba(255,255,255,.35);margin-bottom:3px}
+.ma-v{font-size:14px;font-weight:700;color:#f2f0ee}
+.ma-note{font-size:12px;color:rgba(255,255,255,.55);line-height:1.6}
+.ma-note.warn{color:#ff8a80}
+
 .paycard{background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(212,175,55,.015));border:1px solid rgba(212,175,55,.22);
   border-radius:18px;padding:30px 26px;text-align:center;margin-bottom:14px}
 .pay-k{font-size:9px;font-weight:900;letter-spacing:.20em;text-transform:uppercase;color:#666;margin-bottom:12px}
@@ -401,10 +419,83 @@ $('oid')?.addEventListener('keydown',e=>{if(e.key==='Enter')$('pw').focus();});
 function doLogout(){ CURRENT=null; $('oid').value=''; $('pw').value=''; screen('loginScreen'); }
 
 function renderDashboard(d){
+  // Plusieurs comptes pour la meme personne : un seul espace, chaque
+  // compte affiche avec son propre statut, jamais melange avec un autre.
+  if(Array.isArray(d.accounts) && d.accounts.length > 1){
+    return renderMultiAccount(d);
+  }
   const st=d.status;
   if(st==='ACTIVE') return renderTerminal(d);
   if(st==='LOCKED_UNDERPAID') return renderUnderpaid(d);
   return renderWaiting(d);
+}
+
+function renderMultiAccount(d){
+  const accounts=d.accounts;
+  const firstName=(d.name||'Trader').split(' ')[0];
+
+  const cards=accounts.map((a,i)=>{
+    const cap=Number(a.account_size||0);
+    let body='';
+    if(a.status==='ACTIVE'){
+      const p=a.performance||{};
+      const bal=Number(p.balance ?? cap);
+      const eq=Number(p.equity ?? bal);
+      const pnl=eq-cap;
+      const pct=cap?(pnl/cap*100):0;
+      body=`
+        <div class="ma-row">
+          <div class="ma-stat"><div class="ma-k">CAPITAL</div><div class="ma-v mono">${f0(cap)}</div></div>
+          <div class="ma-stat"><div class="ma-k">EQUITY</div><div class="ma-v mono">${f0(eq)}</div></div>
+          <div class="ma-stat"><div class="ma-k">P&amp;L</div><div class="ma-v mono" style="color:${pnl>=0?'#7ee0a8':'#ff8a80'}">${pnl>=0?'+':''}${f2(pnl)} (${pct>=0?'+':''}${pct.toFixed(1)}%)</div></div>
+        </div>`;
+    } else if(a.status==='LOCKED_UNDERPAID'){
+      body=`<div class="ma-note warn">Solde restant dû : <b>${f2(a.balance_due||0)}</b> — compte réservé, en attente de règlement.</div>`;
+    } else {
+      const labels={PENDING_PAYMENT:'Paiement en attente',PAID:'Paiement confirmé — provisionnement en cours',
+        AWAITING_SETUP:'Finalisation en cours',PROVISION_FAILED:'Finalisation en cours'};
+      body=`<div class="ma-note">${labels[a.status]||'Dossier en cours de traitement'}${a.status==='PENDING_PAYMENT'?' — montant dû : <b>'+f2(a.amount||0)+'</b>':''}</div>`;
+    }
+    return `
+      <div class="ma-card" onclick="openAccountDetail(${i})">
+        <div class="ma-head">
+          <div><div class="ma-plan">${a.plan||'Compte de financement'}</div><div class="ma-id mono">${a.order_id}</div></div>
+          <span class="ma-badge ${a.status==='ACTIVE'?'on':a.status==='LOCKED_UNDERPAID'?'warn':''}">${a.status==='ACTIVE'?'ACTIF':a.status==='LOCKED_UNDERPAID'?'BLOQUÉ':'EN ATTENTE'}</span>
+        </div>
+        ${body}
+      </div>`;
+  }).join('');
+
+  $('dashWrap').innerHTML=`
+    <div class="dhead">
+      <div><div class="dhead-eyebrow">OVERVIEW</div><h1>Bienvenue, ${firstName}</h1></div>
+      <div class="dhead-r"><div class="pill-active"><span class="dot"></span>${accounts.length} COMPTES</div></div>
+    </div>
+    <div class="ma-list">${cards}</div>
+  `;
+}
+
+function openAccountDetail(i){
+  const accounts=CURRENT.accounts;
+  const a=accounts[i];
+  // Reutilise les vues existantes pour le detail d'un compte, avec un
+  // retour vers la liste plutot que de reconnecter.
+  CURRENT._backToList=true;
+  if(a.status==='ACTIVE') renderTerminal(a);
+  else if(a.status==='LOCKED_UNDERPAID') renderUnderpaid(a);
+  else renderWaiting(a);
+  addBackToListButton();
+}
+
+function addBackToListButton(){
+  const head=document.querySelector('#dashWrap .dhead');
+  if(!head) return;
+  const btn=document.createElement('button');
+  btn.className='btn-ghost';
+  btn.style.cssText='margin-bottom:14px';
+  btn.textContent='← Tous mes comptes';
+  btn.onclick=()=>renderDashboard(CURRENT);
+  head.parentNode.insertBefore(btn, head);
 }
 
 function renderWaiting(d){
@@ -506,22 +597,46 @@ function renderTerminal(d){
   const eq =Number(p.equity  ?? bal);
   const pnl=eq-cap;
   const pct=cap? (pnl/cap*100) : 0;
-  const target=cap*0.10;
+  const target=(d.manual_target != null) ? Number(d.manual_target) : cap*0.10;
   const dailyLimit=cap*0.06, maxDD=cap*0.12;
   const firstName=(d.name||'Trader').split(' ')[0];
   const acctNum=d.mt_login||d.order_id.replace('AF-','');
+
+  const daysBlock = (d.manual_days_active != null)
+    ? `<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:6px">Trading actif depuis ${d.manual_days_active} jour${d.manual_days_active>1?'s':''}</div>`
+    : '';
+  const noteBlock = d.manual_note
+    ? `<div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:12px;
+        padding:13px 16px;margin-bottom:18px;font-size:12px;color:#e8e6e2;line-height:1.6">${d.manual_note}</div>`
+    : '';
+  const payoutBlock = d.next_payout_date
+    ? `<div style="background:rgba(126,224,168,.06);border:1px solid rgba(126,224,168,.22);border-radius:12px;
+        padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;gap:12px">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(126,224,168,.12);
+          display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+          <i class="fa-solid fa-calendar-check" style="color:#7ee0a8;font-size:14px"></i>
+        </div>
+        <div>
+          <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7ee0a8;font-weight:700;margin-bottom:2px">Prochain versement</div>
+          <div style="font-size:14px;color:#f2f0ee;font-weight:600">${new Date(d.next_payout_date+'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+        </div>
+      </div>`
+    : '';
 
   $('dashWrap').innerHTML=`
     <div class="dhead">
       <div>
         <div class="dhead-eyebrow">OVERVIEW</div>
         <h1>Trading Dashboard</h1>
+        ${daysBlock}
       </div>
       <div class="dhead-r">
         <div class="pill-active"><span class="dot"></span>ACCOUNT ACTIVE</div>
         <div class="utc mono" id="utcClock">--:--:-- UTC</div>
       </div>
     </div>
+    ${noteBlock}
+    ${payoutBlock}
 
     <div class="welcome">
       <div class="w-l">
