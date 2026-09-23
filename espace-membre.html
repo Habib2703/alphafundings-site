@@ -348,6 +348,17 @@ body{font-family:'Outfit',sans-serif;background:#050505;color:#fff;overflow-x:hi
       </div>
       <div class="err" id="loginErr"></div>
       <button class="btn-gold" id="loginBtn" style="margin-top:22px" onclick="login()">Access Terminal</button>
+      <div style="text-align:center;margin-top:14px">
+        <a href="#" onclick="toggleForgot();return false" style="font-size:11.5px;color:rgba(255,255,255,.45);text-decoration:none">Forgot your password?</a>
+      </div>
+      <div id="forgotBox" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
+        <div class="field" style="margin-bottom:0">
+          <label>Email used for your order</label>
+          <input id="fpEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="err" id="fpMsg"></div>
+        <button class="btn-ghost" id="fpBtn" style="margin-top:14px;width:100%" onclick="forgotPassword()">Send me a new password</button>
+      </div>
     </div>
     <div class="foot-tls"><i class="fa-solid fa-shield-halved"></i>&nbsp;&nbsp;256-Bit TLS Encrypted</div>
   </div>
@@ -376,7 +387,9 @@ const BACKEND='https://alphafundings-backend.onrender.com';
 const $=id=>document.getElementById(id);
 const f2=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const f0=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
-let CURRENT=null, EQUITY_CHART=null;
+let CURRENT=null, EQUITY_CHART=null, ACTIVE_ACCOUNT=null;
+// Compte réellement ouvert à l'écran (multi-comptes) ; sinon le dossier connecté.
+const acct=()=>ACTIVE_ACCOUNT||CURRENT;
 const WALLETS={trc20:'TV9nqxztMSicna7JsrjzutRG4Uh9Wm27JE',bep20:'0xBeB51c11D91023579bF534EFCe5b0173D2087c49'};
 
 function screen(name){
@@ -416,7 +429,28 @@ async function login(){
 $('pw')?.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 $('oid')?.addEventListener('keydown',e=>{if(e.key==='Enter')$('pw').focus();});
 
-function doLogout(){ CURRENT=null; $('oid').value=''; $('pw').value=''; screen('loginScreen'); }
+function toggleForgot(){
+  const b=$('forgotBox'); b.style.display=(b.style.display==='none')?'block':'none';
+}
+
+async function forgotPassword(){
+  const email=$('fpEmail').value.trim(), msg=$('fpMsg'), btn=$('fpBtn');
+  if(!email || email.indexOf('@')<0){ msg.style.color=''; msg.textContent='Enter a valid email address.'; return; }
+  btn.disabled=true; btn.textContent='Sending…';
+  try{
+    const r=await fetch(BACKEND+'/api/portal/forgot-password',{
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email})
+    });
+    const d=await r.json();
+    msg.style.color='#7ee0a8';
+    msg.textContent=(d&&d.message)||'If an account exists for this email, a new password has just been sent.';
+  }catch(e){
+    msg.style.color=''; msg.textContent='Connection failed. Please try again.';
+  }
+  btn.disabled=false; btn.textContent='Send me a new password';
+}
+
+function doLogout(){ CURRENT=null; ACTIVE_ACCOUNT=null; $('oid').value=''; $('pw').value=''; screen('loginScreen'); }
 
 function renderDashboard(d){
   // Plusieurs comptes pour la meme personne : un seul espace, chaque
@@ -481,6 +515,7 @@ function openAccountDetail(i){
   // Reutilise les vues existantes pour le detail d'un compte, avec un
   // retour vers la liste plutot que de reconnecter.
   CURRENT._backToList=true;
+  ACTIVE_ACCOUNT=a;
   if(a.status==='ACTIVE') renderTerminal(a);
   else if(a.status==='LOCKED_UNDERPAID') renderUnderpaid(a);
   else renderWaiting(a);
@@ -494,7 +529,7 @@ function addBackToListButton(){
   btn.className='btn-ghost';
   btn.style.cssText='margin-bottom:14px';
   btn.textContent='← Tous mes comptes';
-  btn.onclick=()=>renderDashboard(CURRENT);
+  btn.onclick=()=>{ ACTIVE_ACCOUNT=null; renderDashboard(CURRENT); };
   head.parentNode.insertBefore(btn, head);
 }
 
@@ -598,7 +633,10 @@ function renderTerminal(d){
   const pnl=eq-cap;
   const pct=cap? (pnl/cap*100) : 0;
   const target=(d.manual_target != null) ? Number(d.manual_target) : cap*0.10;
-  const dailyLimit=cap*0.06, maxDD=cap*0.12;
+  const dailyLimit=(d.daily_loss_limit!=null)?Number(d.daily_loss_limit):cap*0.06;
+  const maxDD=(d.max_loss_limit!=null)?Number(d.max_loss_limit):cap*0.12;
+  const pct0=v=>cap?Math.round(v/cap*100):0;
+  const ps=payoutState(d);
   const firstName=(d.name||'Trader').split(' ')[0];
   const acctNum=d.mt_login||d.order_id.replace('AF-','');
 
@@ -687,33 +725,33 @@ function renderTerminal(d){
         <div class="stat-lbl"><i class="fa-solid fa-bullseye"></i>PROFIT TARGET</div>
         <div class="tval"><b>${f0(target)}</b><span>/ ${f0(cap)}</span></div>
         <div class="pbar" style="height:5px"><i style="width:${Math.max(0,Math.min(100,pnl/target*100))}%"></i></div>
-        <div class="tdesc">10% target · ${Math.max(0,pct).toFixed(0)}% achieved</div>
+        <div class="tdesc">${pct0(target)}% target · ${Math.max(0,Math.min(100,pnl/target*100)).toFixed(0)}% achieved</div>
       </div>
       <div class="tcard">
         <div class="stat-lbl"><i class="fa-solid fa-shield-halved"></i>DAILY DRAWDOWN</div>
         <div class="tval"><b>${f2(Math.max(0,-Math.min(0,pnl)))}</b><span>/ ${f0(dailyLimit)} limit</span></div>
         <div class="pbar" style="height:5px"><i style="width:0%;background:linear-gradient(90deg,#22c55e,#16a34a)"></i></div>
-        <div class="tdesc">6% daily limit · Safe</div>
+        <div class="tdesc">${pct0(dailyLimit)}% daily limit · Safe</div>
       </div>
       <div class="tcard">
         <div class="stat-lbl"><i class="fa-solid fa-triangle-exclamation"></i>MAX DRAWDOWN</div>
         <div class="tval"><b>${f2(Math.max(0,-Math.min(0,pnl)))}</b><span>/ ${f0(maxDD)} limit</span></div>
         <div class="pbar" style="height:5px"><i style="width:0%;background:linear-gradient(90deg,#22c55e,#16a34a)"></i></div>
-        <div class="tdesc">12% max limit · Safe</div>
+        <div class="tdesc">${pct0(maxDD)}% max limit · Safe</div>
       </div>
     </div>
 
     <div class="fpayout">
       <div class="fp-l">
-        <div class="fp-ico"><i class="fa-solid fa-lock-open"></i></div>
+        <div class="fp-ico"><i class="fa-solid ${ps.unlocked?'fa-lock-open':'fa-lock'}"></i></div>
         <div>
           <div class="w-eyebrow">PAYOUT AVAILABILITY</div>
-          <div class="fp-amt gold-txt">${f2(Math.max(0,pnl))}<small>available</small></div>
-          <div class="fp-sub">No waiting period — request a payout whenever you choose</div>
+          <div class="fp-amt gold-txt">${f2(ps.avail)}<small>available</small></div>
+          <div class="fp-sub">${ps.message}</div>
         </div>
       </div>
-      <div class="fp-badge" style="background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.20)">
-        <div class="fp-badge-l" style="color:#22c55e"><i class="fa-solid fa-circle-check"></i>UNLOCKED</div>
+      <div class="fp-badge" style="background:${ps.unlocked?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'};border-color:${ps.unlocked?'rgba(34,197,94,.20)':'rgba(239,68,68,.22)'}">
+        <div class="fp-badge-l" style="color:${ps.unlocked?'#22c55e':'#ff8a80'}"><i class="fa-solid ${ps.unlocked?'fa-circle-check':'fa-lock'}"></i>${ps.unlocked?'UNLOCKED':'LOCKED'}</div>
         <div class="fp-badge-s">80% split · rises to 90% after 3 payouts</div>
       </div>
     </div>
@@ -771,8 +809,10 @@ function renderTerminal(d){
     <div class="alert-bottom">
       <div class="alert-ico"><i class="fa-solid fa-clock"></i></div>
       <div>
-        <div class="alert-l1">PAYOUT WINDOW · OPEN</div>
-        <div class="alert-l2">You may request a payout at any time. No minimum holding period applies to this account.</div>
+        <div class="alert-l1">PAYOUT WINDOW · ${ps.unlocked?'OPEN':'CLOSED'}</div>
+        <div class="alert-l2">${ps.unlocked
+          ? 'Your payout window is open. You may request up to '+f2(ps.avail)+'.'
+          : ps.message}</div>
       </div>
     </div>
   `;
@@ -826,9 +866,28 @@ function startClock(){
   tick(); setInterval(tick,1000);
 }
 
+function payoutState(d){
+  const p=d.performance||{};
+  const cap=Number(d.account_size||0);
+  const profit=Math.max(0,Number(p.equity??cap)-cap);
+  const fmtDate=s=>new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  if(!d.payout_unlock_date){
+    return {unlocked:false,avail:0,message:'Payout not yet open — your eligibility date will be communicated by the risk desk.'};
+  }
+  const today=new Date(); today.setHours(0,0,0,0);
+  if(today < new Date(d.payout_unlock_date+'T00:00:00')){
+    return {unlocked:false,avail:0,message:'Payout opens on '+fmtDate(d.payout_unlock_date)+'.'};
+  }
+  const max=(d.payout_max_amount!=null)?Number(d.payout_max_amount):profit;
+  const avail=Math.max(0,Math.min(profit,max));
+  return {unlocked:true,avail,message:'Payout open'+(d.payout_max_amount!=null?' · up to '+f2(max)+' this cycle':'')+'.'};
+}
+
 function openWithdraw(){
-  const d=CURRENT; const p=d.performance||{};
-  const avail=Math.max(0,Number(p.equity??d.account_size)-Number(d.account_size));
+  const d=acct();
+  const ps=payoutState(d);
+  if(!ps.unlocked){ toast('err','Payout Locked',ps.message); return; }
+  const avail=ps.avail;
   const net=(d.network||'trc20').toLowerCase();
   const netLabel = net==='bep20' ? 'BNB · BEP20' : 'USDT · TRC20';
   const addrPrefix = net==='bep20' ? '0x' : 'T';
@@ -893,7 +952,7 @@ async function authorizePayout(amt,masked,netLabel){
   try{
     const r=await fetch(BACKEND+'/api/portal/request-payout',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({order_id:CURRENT.order_id, amount:amt, network:CURRENT.network, address:$('wAddr').value.trim()})
+      body:JSON.stringify({order_id:acct().order_id, amount:amt, network:acct().network, address:$('wAddr').value.trim()})
     });
     if(r.ok){ const d=await r.json(); ref=d.reference; }
   }catch(e){}
