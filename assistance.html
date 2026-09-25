@@ -852,6 +852,18 @@ function showResult(d){
       <button class="btn-ghost" onclick="reset()">Retour</button>`;
   }
 
+  else if(st==='OFFER_EXPIRED'){
+    h=`<div class="diag"><div class="diag-ico err">!</div>
+        <div><div class="diag-t">Offre privée expirée</div>
+        <div class="diag-s">Délai de règlement dépassé</div></div></div>
+      <p class="diag-txt">Le délai de votre offre est dépassé et elle n'est plus garantie. Pour la réactiver,
+      écrivez à contact@alphafundings.com en indiquant votre identifiant trader. Si vous aviez déjà réglé,
+      déclarez votre paiement depuis votre espace membre avec la référence de la transaction.</p>
+      ${base}
+      <button class="btn" onclick="location.href='/espace-membre.html'">Ouvrir mon espace membre</button>
+      <button class="btn-ghost" onclick="reset()">Retour</button>`;
+  }
+
   else if(st==='OFFER_PENDING'){
     const tot=Number(d.offer_total||0), n=Number(d.offer_count||1);
     h=`<div class="diag"><div class="diag-ico wait">◷</div>

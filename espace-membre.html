@@ -329,7 +329,39 @@ body{font-family:'Outfit',sans-serif;background:#050505;color:#fff;overflow-x:hi
 .pill-wait{display:flex;align-items:center;gap:7px;background:rgba(232,184,75,.08);border:1px solid rgba(232,184,75,.24);
   border-radius:8px;padding:6px 12px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e8b84b}
 .pill-wait .dot{width:6px;height:6px;border-radius:50%;background:#e8b84b;animation:blink 1.6s infinite}
-@media(max-width:640px){.of-nets{grid-template-columns:1fr}.of-acc-v{font-size:19px}}
+.of-timer{display:inline-flex;align-items:center;gap:8px;margin:14px auto 0;padding:8px 14px;border-radius:100px;
+  background:rgba(232,184,75,.08);border:1px solid rgba(232,184,75,.26);font-size:11.5px;font-weight:700;color:#e8b84b}
+.of-timer b{font-family:'Space Mono',monospace;color:#fff;font-weight:700}
+.of-declare{max-width:460px;margin:22px auto 0;padding:18px;border-radius:14px;text-align:left;
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08)}
+.of-declare h4{font-size:13px;font-weight:800;color:#f2f0ee;margin-bottom:4px}
+.of-declare p{font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.5);margin-bottom:12px}
+.of-declare input{width:100%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);border-radius:10px;
+  padding:13px 14px;color:#fff;font:12px 'Space Mono',monospace;margin-bottom:10px}
+.of-declare input:focus{outline:none;border-color:rgba(212,175,55,.5)}
+.of-seg{display:flex;gap:8px;margin-bottom:10px}
+.of-seg button{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.35);
+  color:rgba(255,255,255,.6);font:700 11.5px 'Outfit',-apple-system,Arial,sans-serif;cursor:pointer}
+.of-seg button.on{border-color:rgba(212,175,55,.6);color:#EBD68A;background:rgba(212,175,55,.08)}
+.of-msg{font-size:11.5px;margin-top:8px;min-height:16px}
+.of-state{max-width:460px;margin:20px auto 0;padding:16px 18px;border-radius:14px;text-align:left;font-size:12px;line-height:1.7}
+.of-state.ok{background:rgba(90,200,250,.07);border:1px solid rgba(90,200,250,.25);color:rgba(255,255,255,.7)}
+.of-state.ok b{color:#9bdcff}
+.of-state.bad{background:rgba(255,90,77,.07);border:1px solid rgba(255,90,77,.25);color:rgba(255,255,255,.7)}
+.of-state.bad b{color:#ff8a80}
+.pill-wait.blue{background:rgba(90,200,250,.08);border-color:rgba(90,200,250,.26);color:#9bdcff}
+.pill-wait.blue .dot{background:#9bdcff}
+.pill-wait.red{background:rgba(255,90,77,.08);border-color:rgba(255,90,77,.26);color:#ff8a80}
+.pill-wait.red .dot{background:#ff8a80;animation:none}
+/* ─── Performance enrichie ─── */
+.sess{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px}
+.sess-c{background:rgba(18,18,18,.94);border:1px solid rgba(255,255,255,.055);border-radius:14px;padding:14px 16px}
+.sess-k{font-size:8.5px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px}
+.sess-v{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#f2f0ee}
+.sess-v.up{color:#22c55e}.sess-v.dn{color:#ef4444}
+.sess-s{font-size:9.5px;color:rgba(255,255,255,.35);margin-top:3px}
+.risk-lbl{font-size:9px;font-weight:700;margin-top:6px}
+@media(max-width:640px){.of-nets{grid-template-columns:1fr}.of-acc-v{font-size:19px}.sess{grid-template-columns:repeat(2,1fr)}}
 
 .locked-bg{filter:blur(9px);pointer-events:none;user-select:none;opacity:.55;
   transform:scale(1.01)}
@@ -425,7 +457,7 @@ const f0=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
 let CURRENT=null, EQUITY_CHART=null, ACTIVE_ACCOUNT=null;
 // Compte réellement ouvert à l'écran (multi-comptes) ; sinon le dossier connecté.
 const acct=()=>ACTIVE_ACCOUNT||CURRENT;
-let OFFER_VIEW=null;
+let OFFER_VIEW=null, OFFER_TIMER=null, LOGIN_PW='';
 const fU=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' USDT';
 const WALLETS={trc20:'TV9nqxztMSicna7JsrjzutRG4Uh9Wm27JE',bep20:'0xBeB51c11D91023579bF534EFCe5b0173D2087c49'};
 
@@ -454,7 +486,7 @@ async function login(){
     }
     if(!r.ok) throw new Error();
     const d=await r.json();
-    CURRENT=d;
+    CURRENT=d; LOGIN_PW=pw;
     $('navId').textContent=(d.name||'—').split(' ')[0].toUpperCase()+' · #'+(d.mt_login||d.order_id.replace('AF-',''));
     renderDashboard(d);
     screen('dashScreen');
@@ -487,9 +519,9 @@ async function forgotPassword(){
   btn.disabled=false; btn.textContent='Send me a new password';
 }
 
-function doLogout(){ CURRENT=null; ACTIVE_ACCOUNT=null; $('oid').value=''; $('pw').value=''; screen('loginScreen'); }
+function doLogout(){ CURRENT=null; ACTIVE_ACCOUNT=null; LOGIN_PW=''; clearInterval(OFFER_TIMER); $('oid').value=''; $('pw').value=''; screen('loginScreen'); }
 
-const isOfferPending=a=>a.status==='OFFER_PENDING' && !!a.offer_id;
+const isOfferPending=a=>(a.status==='OFFER_PENDING'||a.status==='OFFER_EXPIRED') && !!a.offer_id;
 
 // Regroupe les comptes d'une même offre privée non réglée.
 function offerGroups(accs){
@@ -497,7 +529,8 @@ function offerGroups(accs){
   accs.forEach(a=>{
     if(!isOfferPending(a)) return;
     (g[a.offer_id]=g[a.offer_id]||{offer_id:a.offer_id,total:a.offer_total,regular:a.offer_regular,
-      note:a.offer_note,accounts:[]}).accounts.push(a);
+      note:a.offer_note,expires:a.offer_expires_at,declared_at:a.declared_at,declared_network:a.declared_network,
+      expired:a.status==='OFFER_EXPIRED',accounts:[]}).accounts.push(a);
   });
   return Object.values(g);
 }
@@ -526,7 +559,7 @@ function renderMultiAccount(d){
       <div class="ma-card" onclick="openOffer(${k})" style="border-color:rgba(212,175,55,.3);background:rgba(212,175,55,.04)">
         <div class="ma-head">
           <div><div class="ma-plan">Offre privée · ${o.accounts.length} compte${o.accounts.length>1?'s':''}</div><div class="ma-id mono">${o.offer_id}</div></div>
-          <span class="ma-badge" style="background:rgba(232,184,75,.12);color:#e8b84b">À RÉGLER</span>
+          <span class="ma-badge" style="background:${o.expired?'rgba(255,90,77,.12)':o.declared_at?'rgba(90,200,250,.12)':'rgba(232,184,75,.12)'};color:${o.expired?'#ff8a80':o.declared_at?'#9bdcff':'#e8b84b'}">${o.expired?'EXPIRÉE':o.declared_at?'EN VÉRIFICATION':'À RÉGLER'}</span>
         </div>
         <div class="ma-note">${offerSizes(o.accounts)} — montant à régler : <b style="color:#EBD68A">${fU(o.total)}</b></div>
       </div>`).join('');
@@ -591,8 +624,55 @@ const NET_ICON={
   bep20:'<svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="9" fill="#F3BA2F"/><g fill="#1a1408"><rect x="12.6" y="7.6" width="4.8" height="4.8" transform="rotate(45 15 10)"/><rect x="12.6" y="17.6" width="4.8" height="4.8" transform="rotate(45 15 20)"/><rect x="7.6" y="12.6" width="4.8" height="4.8" transform="rotate(45 10 15)"/><rect x="17.6" y="12.6" width="4.8" height="4.8" transform="rotate(45 20 15)"/></g></svg>'
 };
 
+function fmtDateTime(iso){
+  const d=new Date(iso+'Z');
+  return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+function tickOffer(){
+  const el=$('ofCountdown'); if(!el||!OFFER_VIEW||!OFFER_VIEW.expires) return;
+  const ms=new Date(OFFER_VIEW.expires+'Z')-new Date();
+  if(ms<=0){ el.innerHTML='Délai écoulé'; clearInterval(OFFER_TIMER); return; }
+  const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+  el.innerHTML='Offre réservée encore <b>'+(h>=24?Math.floor(h/24)+' j '+(h%24)+' h':h+' h '+String(m).padStart(2,'0')+' min')+'</b>';
+}
+function declareBlock(o){
+  const net=(document.querySelector('.of-net.on')||{}).dataset?.net||'trc20';
+  return `<div class="of-declare" id="ofDeclare">
+      <h4>Vous avez réglé ?</h4>
+      <p>Indiquez le réseau utilisé et la référence de votre transaction (hash). Notre équipe la vérifie et vous
+        recevez un courriel dès la confirmation.</p>
+      <div class="of-seg">
+        <button data-dn="trc20" class="${net==='trc20'?'on':''}" onclick="pickDeclNet(this)">TRC20</button>
+        <button data-dn="bep20" class="${net==='bep20'?'on':''}" onclick="pickDeclNet(this)">BEP20</button>
+      </div>
+      <input id="ofTx" placeholder="Hash de la transaction" autocomplete="off" spellcheck="false">
+      <button class="btn-gold" id="ofDeclBtn" onclick="declarePaid()" style="padding:15px">J'ai payé — envoyer la référence</button>
+      <div class="of-msg" id="ofDeclMsg"></div>
+    </div>`;
+}
+function pickDeclNet(b){ b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); }
+async function declarePaid(){
+  const o=OFFER_VIEW; if(!o) return;
+  const tx=$('ofTx').value.trim(), msg=$('ofDeclMsg'), btn=$('ofDeclBtn');
+  const net=(document.querySelector('#ofDeclare .of-seg .on')||{}).dataset?.dn||'trc20';
+  if(tx.length<10||/\s/.test(tx)){ msg.style.color='#ff8a80'; msg.textContent='Collez la référence complète de la transaction.'; return; }
+  btn.disabled=true; btn.textContent='Envoi…';
+  try{
+    const r=await fetch(BACKEND+'/api/portal/declare-payment',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({order_id:o.accounts[0].order_id,password:LOGIN_PW,tx_ref:tx,network:net})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){ msg.style.color='#ff8a80'; msg.textContent=r.status===401?'Session expirée : reconnectez-vous.':'Référence refusée. Vérifiez-la et réessayez.';
+      btn.disabled=false; btn.textContent='J\'ai payé — envoyer la référence'; return; }
+    (CURRENT.accounts||[CURRENT]).forEach(a=>{ if(a.offer_id===o.offer_id){ a.declared_at=d.declared_at; a.declared_network=net; } });
+    if(CURRENT.offer_id===o.offer_id){ CURRENT.declared_at=d.declared_at; CURRENT.declared_network=net; }
+    o.declared_at=d.declared_at; o.declared_network=net;
+    renderOffer(o,!!document.querySelector('#dashWrap .btn-ghost[data-back]'));
+    toast('ok','Paiement déclaré','Nous vérifions votre transaction.');
+  }catch(e){ msg.style.color='#ff8a80'; msg.textContent='Connexion impossible. Réessayez.'; btn.disabled=false; btn.textContent='J\'ai payé — envoyer la référence'; }
+}
+
 function renderOffer(o,withBack){
-  OFFER_VIEW=o;
+  OFFER_VIEW=o; clearInterval(OFFER_TIMER);
   const firstName=(CURRENT&&CURRENT.name||'Trader').split(' ')[0];
   const n=o.accounts.length;
   const capital=o.accounts.reduce((s,a)=>s+Number(a.account_size||0),0);
@@ -616,7 +696,7 @@ function renderOffer(o,withBack){
   $('dashWrap').innerHTML=`
     <div class="dhead">
       <div><div class="dhead-eyebrow">PRIVATE OFFER</div><h1>Bienvenue, ${esc(firstName)}</h1></div>
-      <div class="dhead-r"><div class="pill-wait"><span class="dot"></span>En attente de règlement</div></div>
+      <div class="dhead-r"><div class="pill-wait ${o.expired?'red':o.declared_at?'blue':''}"><span class="dot"></span>${o.expired?'Offre expirée':o.declared_at?'Paiement en vérification':'En attente de règlement'}</div></div>
     </div>
     <p class="of-intro">Une offre vous a été réservée à titre personnel&nbsp;: <b>${n} compte${n>1?'s':''} Instant Funding</b>,
       pour un capital total de <b>${f0(capital)}</b>. ${n>1?'Ils s\'activent':'Il s\'active'} dans cet espace dès la confirmation de votre règlement.</p>
@@ -629,8 +709,18 @@ function renderOffer(o,withBack){
       <div class="pay-v gold-txt">${fU(total)}</div>
       ${regular>total?`<div class="of-save">TARIF PRIVÉ · −${Math.round((1-total/regular)*100)}%</div>`:''}
       ${o.note?`<div class="of-note">${esc(o.note)}</div>`:''}
+      ${(o.expires&&!o.expired&&!o.declared_at)?'<div class="of-timer" id="ofCountdown"></div>':''}
 
-      <div class="of-pick">Choisissez votre réseau de paiement</div>
+      ${o.declared_at?`<div class="of-state ok"><b>Paiement déclaré le ${fmtDateTime(o.declared_at)}</b>
+        (${(o.declared_network||'').toUpperCase()}). Notre équipe vérifie votre transaction : vous recevez un courriel
+        dès la confirmation, puis vos identifiants MetaTrader 5.
+        <div style="margin-top:8px"><a href="#" onclick="$('ofDeclareWrap').style.display='block';this.parentNode.remove();return false" style="color:#9bdcff">Corriger la référence envoyée</a></div></div>
+        <div id="ofDeclareWrap" style="display:none">${declareBlock(o)}</div>`
+      : o.expired?`<div class="of-state bad"><b>Cette offre a expiré${o.expires?' le '+fmtDateTime(o.expires):''}.</b>
+        Elle n'est plus garantie. Pour la réactiver, écrivez-nous à contact@alphafundings.com en indiquant
+        votre identifiant ${esc(o.accounts[0].order_id)}. Si vous aviez déjà réglé, déclarez votre paiement ci-dessous.</div>
+        ${declareBlock(o)}`
+      :`<div class="of-pick">Choisissez votre réseau de paiement</div>
       <div class="of-nets">
         <button class="of-net" data-net="trc20" onclick="offerPay('trc20')">${NET_ICON.trc20}<span>USDT · TRC20<small>Réseau Tron</small></span></button>
         <button class="of-net" data-net="bep20" onclick="offerPay('bep20')">${NET_ICON.bep20}<span>USDT · BEP20<small>BNB Smart Chain</small></span></button>
@@ -640,22 +730,26 @@ function renderOffer(o,withBack){
       <div class="of-rule"><b>Réglez exactement ${fU(total)}</b>, en une seule transaction, et conservez la preuve de
         votre paiement (capture d'écran et identifiant de transaction). Envoyez uniquement de l'USDT, sur le réseau
         correspondant à l'adresse choisie.</div>
+      ${declareBlock(o)}`}
     </div>
 
     <div class="wait-list of-steps">
       <div class="wstep"><b>1.</b><span>Vous réglez ${fU(total)} sur le réseau de votre choix.</span></div>
-      <div class="wstep"><b>2.</b><span>Notre équipe confirme votre règlement : vous en êtes informé par courriel.</span></div>
-      <div class="wstep"><b>3.</b><span>Vos identifiants MetaTrader 5 vous parviennent par courriel.</span></div>
-      <div class="wstep"><b>4.</b><span>${n>1?'Vos comptes s\'activent':'Votre compte s\'active'} ici, avec le suivi de performance.</span></div>
+      <div class="wstep"><b>2.</b><span>Vous cliquez sur « J'ai payé » et collez la référence de la transaction.</span></div>
+      <div class="wstep"><b>3.</b><span>Notre équipe confirme votre règlement : vous en êtes informé par courriel.</span></div>
+      <div class="wstep"><b>4.</b><span>Vos identifiants MetaTrader 5 vous parviennent par courriel.</span></div>
+      <div class="wstep"><b>5.</b><span>${n>1?'Vos comptes s\'activent':'Votre compte s\'active'} ici, avec le suivi de performance.</span></div>
     </div>
     <button class="btn-ghost" onclick="location.reload()" style="max-width:300px;margin:0 auto;display:block">Actualiser</button>
   `;
   if(withBack) addBackToListButton();
+  if(o.expires&&!o.expired&&!o.declared_at){ tickOffer(); OFFER_TIMER=setInterval(tickOffer,30000); }
 }
 
 function offerPay(net){
   const addr=WALLETS[net]; if(!addr) return;
   document.querySelectorAll('.of-net').forEach(b=>b.classList.toggle('on',b.dataset.net===net));
+  document.querySelectorAll('#ofDeclare .of-seg button').forEach(b=>b.classList.toggle('on',b.dataset.dn===net));
   const box=$('ofPay');
   const qr='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+encodeURIComponent(addr)+'&color=000000&bgcolor=ffffff&qzone=1';
   box.classList.remove('show');
@@ -690,7 +784,8 @@ function addBackToListButton(){
   btn.className='btn-ghost';
   btn.style.cssText='margin-bottom:14px';
   btn.textContent='← Tous mes comptes';
-  btn.onclick=()=>{ ACTIVE_ACCOUNT=null; renderDashboard(CURRENT); };
+  btn.dataset.back='1';
+  btn.onclick=()=>{ ACTIVE_ACCOUNT=null; clearInterval(OFFER_TIMER); renderDashboard(CURRENT); };
   head.parentNode.insertBefore(btn, head);
 }
 
@@ -799,6 +894,29 @@ function renderTerminal(d){
   const pct0=v=>cap?Math.round(v/cap*100):0;
   const ps=payoutState(d);
   const firstName=(d.name||'Trader').split(' ')[0];
+  const hist=Array.isArray(p.history)?p.history:[];
+  const num=v=>(v===null||v===undefined||v==='')?null:Number(v);
+  const dayPnl=num(d.daily_pnl);
+  // Perte du jour : ce qui a été perdu depuis le solde d'ouverture ; perte max : depuis le capital initial,
+  // en tenant compte du plus bas atteint si l'admin l'a renseigné.
+  const dayLoss=dayPnl!==null?Math.max(0,-dayPnl):Math.max(0,-Math.min(0,pnl));
+  const low=num(d.lowest_equity);
+  const maxLoss=Math.max(0,cap-Math.min(eq,low!==null?low:eq));
+  const risk=(used,lim)=>{
+    const r=lim?used/lim*100:0;
+    const c=r>=100?'#ef4444':r>=70?'#f59e0b':'#22c55e';
+    return {w:Math.max(0,Math.min(100,r)),c,l:r>=100?'Limit reached':r>=70?'Warning · '+r.toFixed(0)+'% used':'Safe · '+r.toFixed(0)+'% used'};
+  };
+  const rDay=risk(dayLoss,dailyLimit), rMax=risk(maxLoss,maxDD);
+  const fmtDay=iso=>new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+  const sgn=v=>(v>=0?'+':'−')+f2(Math.abs(v));
+  const sessCards=[
+    dayPnl!==null?`<div class="sess-c"><div class="sess-k">Today P&amp;L</div><div class="sess-v ${dayPnl>=0?'up':'dn'}">${sgn(dayPnl)}</div><div class="sess-s">${d.perf_date?fmtDay(d.perf_date):'Current session'}</div></div>`:'',
+    num(d.trades_count)!==null?`<div class="sess-c"><div class="sess-k">Trades</div><div class="sess-v">${Number(d.trades_count)}</div><div class="sess-s">Since activation</div></div>`:'',
+    num(d.win_rate)!==null?`<div class="sess-c"><div class="sess-k">Win Rate</div><div class="sess-v">${Number(d.win_rate).toFixed(1)}%</div><div class="sess-s">Winning trades</div></div>`:'',
+    num(d.best_trade)!==null?`<div class="sess-c"><div class="sess-k">Best Trade</div><div class="sess-v up">${sgn(Number(d.best_trade))}</div></div>`:'',
+    num(d.worst_trade)!==null?`<div class="sess-c"><div class="sess-k">Worst Trade</div><div class="sess-v dn">${sgn(Number(d.worst_trade))}</div></div>`:'',
+  ].join('');
   const acctNum=d.mt_login||d.order_id.replace('AF-','');
 
   const daysBlock = (d.manual_days_active != null)
@@ -843,7 +961,7 @@ function renderTerminal(d){
         <div>
           <div class="w-eyebrow">NEW ACCOUNT ACTIVATED</div>
           <div class="w-line">Welcome, <span class="gold-txt">${firstName}</span> — Your ${f0(cap)} funded account is live.</div>
-          <div class="w-sub">Activated today · MT5 ID: <b>${acctNum}</b></div>
+          <div class="w-sub">Activated ${d.activated_at?new Date(d.activated_at+'Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'today'} · MT5 ID: <b>${acctNum}</b></div>
         </div>
       </div>
       <div class="w-r">
@@ -864,7 +982,7 @@ function renderTerminal(d){
         <span class="stat-badge">${pct>=0?'+':''}${pct.toFixed(2)}%</span>
         <div class="stat-lbl"><i class="fa-solid fa-chart-line"></i>NET PROFIT</div>
         <div class="stat-val gold-txt mono">${pnl>=0?'+':''}${f2(pnl)}</div>
-        <div class="pbar-row"><span>Profit target (10%)</span><b>${Math.max(0,Math.min(100,(pnl/target*100))).toFixed(0)}%</b></div>
+        <div class="pbar-row"><span>Profit target (${pct0(target)}%)</span><b>${Math.max(0,Math.min(100,(pnl/target*100))).toFixed(0)}%</b></div>
         <div class="pbar"><i style="width:${Math.max(0,Math.min(100,pnl/target*100))}%"></i></div>
         <i class="fa-solid fa-chart-line stat-ghost"></i>
       </div>
@@ -890,17 +1008,21 @@ function renderTerminal(d){
       </div>
       <div class="tcard">
         <div class="stat-lbl"><i class="fa-solid fa-shield-halved"></i>DAILY DRAWDOWN</div>
-        <div class="tval"><b>${f2(Math.max(0,-Math.min(0,pnl)))}</b><span>/ ${f0(dailyLimit)} limit</span></div>
-        <div class="pbar" style="height:5px"><i style="width:0%;background:linear-gradient(90deg,#22c55e,#16a34a)"></i></div>
-        <div class="tdesc">${pct0(dailyLimit)}% daily limit · Safe</div>
+        <div class="tval"><b>${f2(dayLoss)}</b><span>/ ${f0(dailyLimit)} limit</span></div>
+        <div class="pbar" style="height:5px"><i style="width:${rDay.w}%;background:${rDay.c}"></i></div>
+        <div class="tdesc">${pct0(dailyLimit)}% daily limit</div>
+        <div class="risk-lbl" style="color:${rDay.c}">${rDay.l}</div>
       </div>
       <div class="tcard">
         <div class="stat-lbl"><i class="fa-solid fa-triangle-exclamation"></i>MAX DRAWDOWN</div>
-        <div class="tval"><b>${f2(Math.max(0,-Math.min(0,pnl)))}</b><span>/ ${f0(maxDD)} limit</span></div>
-        <div class="pbar" style="height:5px"><i style="width:0%;background:linear-gradient(90deg,#22c55e,#16a34a)"></i></div>
-        <div class="tdesc">${pct0(maxDD)}% max limit · Safe</div>
+        <div class="tval"><b>${f2(maxLoss)}</b><span>/ ${f0(maxDD)} limit</span></div>
+        <div class="pbar" style="height:5px"><i style="width:${rMax.w}%;background:${rMax.c}"></i></div>
+        <div class="tdesc">${pct0(maxDD)}% max limit${low!==null?' · lowest equity '+f0(low):''}</div>
+        <div class="risk-lbl" style="color:${rMax.c}">${rMax.l}</div>
       </div>
     </div>
+
+    ${sessCards?`<div class="dhead-eyebrow" style="margin:0 0 8px">TRADING STATISTICS</div><div class="sess">${sessCards}</div>`:''}
 
     <div class="fpayout">
       <div class="fp-l">
@@ -921,10 +1043,10 @@ function renderTerminal(d){
       <div class="card">
         <div class="chead">
           <div><div class="dhead-eyebrow" style="margin-bottom:2px">PERFORMANCE</div><div class="ctitle">Equity Curve</div></div>
-          <span class="cbadge">${(p.trades_count||0)>0?'LIVE':'NO TRADES YET'}</span>
+          <span class="cbadge">${hist.length?'UPDATED '+fmtDay(hist[hist.length-1].day).toUpperCase():'NO TRADES YET'}</span>
         </div>
         <canvas id="equityChart" height="130"></canvas>
-        <div class="chart-note">${(p.trades_count||0)>0?'Live performance from your MT5 account':'Start trading to populate your performance chart'}</div>
+        <div class="chart-note">${hist.length?'Daily closing equity · '+hist.length+' session'+(hist.length>1?'s':''):'Start trading to populate your performance chart'}</div>
       </div>
 
       <div class="card rules-card">
@@ -944,7 +1066,7 @@ function renderTerminal(d){
         <div class="rule gold">
           <div class="rule-ico"><i class="fa-solid fa-bullseye"></i></div>
           <div class="rule-body"><div class="rule-lbl">PROFIT TARGET</div><div class="rule-val">${f0(target)}</div></div>
-          <span class="rule-badge">10%</span>
+          <span class="rule-badge">${pct0(target)}%</span>
         </div>
 
         <div class="minigrid">
@@ -958,13 +1080,14 @@ function renderTerminal(d){
     <div class="dhead-eyebrow" style="margin:0 0 6px">HISTORY</div>
     <div class="card" style="padding:0;margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0">
-        <div class="ctitle" style="font-size:13px">Trade History</div>
+        <div class="ctitle" style="font-size:13px">${hist.length?'Daily Journal':'Trade History'}</div>
         <span class="mono" style="font-size:9px;color:#2a2a2a">XAUUSD · MT5</span>
       </div>
-      <div class="thead-row" style="margin-top:14px">
+      ${hist.length?`<div class="thead-row" style="margin-top:14px">
+        <span>#</span><span>Session</span><span>P&amp;L</span><span>Equity</span><span>Trades</span>
+      </div>${renderJournal(hist)}`:`<div class="thead-row" style="margin-top:14px">
         <span>#</span><span>Type / Time</span><span>P&amp;L</span><span>Pips</span><span>Status</span>
-      </div>
-      ${renderTrades(p.recent_trades)}
+      </div>${renderTrades(p.recent_trades)}`}
     </div>
 
     <div class="alert-bottom">
@@ -978,8 +1101,20 @@ function renderTerminal(d){
     </div>
   `;
 
-  drawEquityChart(p.equity_curve, cap);
+  drawEquityChart(p.equity_curve, cap, hist);
   startClock();
+}
+
+function renderJournal(hist){
+  return hist.slice().reverse().slice(0,30).map((h,i,arr)=>{
+    const pl=(h.daily_pnl!==null&&h.daily_pnl!==undefined)?Number(h.daily_pnl):null;
+    return `<div class="trow">
+      <span class="n">${String(arr.length-i).padStart(2,'0')}</span>
+      <span>${new Date(h.day+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'})}</span>
+      <span class="pl ${pl===null?'':pl>=0?'up':'dn'}">${pl===null?'—':(pl>=0?'+':'')+pl.toFixed(2)}</span>
+      <span class="mono" style="color:#888">${h.equity!=null?f0(h.equity):'—'}</span>
+      <span class="mono" style="color:#888">${h.trades_count!=null?h.trades_count:'—'}</span>
+    </div>`;}).join('');
 }
 
 function renderTrades(trades){
@@ -1000,23 +1135,31 @@ function renderTrades(trades){
     </div>`).join('');
 }
 
-function drawEquityChart(curve, cap){
+function drawEquityChart(curve, cap, hist){
   const ctx=document.getElementById('equityChart');
   if(!ctx || typeof Chart==='undefined') return;
-  const data = (curve && curve.length) ? curve : Array(7).fill(cap);
-  const labels = (curve && curve.length===7) ? ['Open','+1d','+2d','+3d','+4d','+5d','Now']
-    : Array.from({length:data.length},(_,i)=>i===data.length-1?'Now':'+'+i+'d');
+  const real=Array.isArray(hist)&&hist.length>0;
+  let data, labels;
+  if(real){
+    data=[cap].concat(hist.map(h=>Number(h.equity??h.balance??cap)));
+    labels=['Start'].concat(hist.map(h=>new Date(h.day+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short'})));
+  } else {
+    data = (curve && curve.length) ? curve : Array(7).fill(cap);
+    labels = (curve && curve.length===7) ? ['Open','+1d','+2d','+3d','+4d','+5d','Now']
+      : Array.from({length:data.length},(_,i)=>i===data.length-1?'Now':'+'+i+'d');
+  }
+  const lo=Math.min(cap,...data), hi=Math.max(cap,...data), pad=Math.max((hi-lo)*0.25,cap*0.004);
   if(EQUITY_CHART) EQUITY_CHART.destroy();
   const gctx=ctx.getContext('2d');
   const grad=gctx.createLinearGradient(0,0,0,150);
   grad.addColorStop(0,'rgba(212,175,55,.10)'); grad.addColorStop(1,'rgba(212,175,55,0)');
-  EQUITY_CHART=new Chart(ctx,{type:'line',data:{labels,datasets:[{data,borderColor:'rgba(212,175,55,.35)',
-    borderWidth:2,borderDash:[6,4],backgroundColor:grad,fill:true,pointRadius:3,pointBackgroundColor:'rgba(212,175,55,.40)',
+  EQUITY_CHART=new Chart(ctx,{type:'line',data:{labels,datasets:[{data,borderColor:real?'#D4AF37':'rgba(212,175,55,.35)',
+    borderWidth:2,borderDash:real?[]:[6,4],backgroundColor:grad,fill:true,pointRadius:3,pointBackgroundColor:real?'#F4D03F':'rgba(212,175,55,.40)',
     pointBorderWidth:0,tension:.35}]},
     options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(8,8,8,.96)',
       titleColor:'#D4AF37',bodyColor:'#D4AF37',borderColor:'rgba(212,175,55,.3)',borderWidth:1,bodyFont:{family:'Space Mono'}}},
-    scales:{y:{min:cap*0.96,max:cap*1.04,grid:{color:'rgba(255,255,255,.02)'},
-      ticks:{color:'#222',font:{family:'Space Mono',size:9},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},
+    scales:{y:{min:real?lo-pad:cap*0.96,max:real?hi+pad:cap*1.04,grid:{color:'rgba(255,255,255,.02)'},
+      ticks:{color:'#555',font:{family:'Space Mono',size:9},callback:v=>'$'+(v/1000).toFixed(real?1:0)+'k'}},
       x:{grid:{display:false},ticks:{color:'#222',font:{family:'Space Mono',size:9}}}}}
   });
 }
