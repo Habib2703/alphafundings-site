@@ -852,6 +852,23 @@ function showResult(d){
       <button class="btn-ghost" onclick="reset()">Retour</button>`;
   }
 
+  else if(st==='OFFER_PENDING'){
+    const tot=Number(d.offer_total||0), n=Number(d.offer_count||1);
+    h=`<div class="diag"><div class="diag-ico wait">◷</div>
+        <div><div class="diag-t">Offre privée en attente de règlement</div>
+        <div class="diag-s">${n} compte${n>1?'s':''} réservé${n>1?'s':''} à votre nom</div></div></div>
+      <p class="diag-txt">Votre offre est bien enregistrée. Réglez le montant ci-dessous depuis votre
+      espace membre, sur le réseau USDT de votre choix (TRC20 ou BEP20). Dès que notre équipe a confirmé
+      votre règlement, vous êtes informé par courriel, puis vos identifiants MetaTrader 5 vous parviennent.</p>
+      ${base}
+      <div class="rows" style="margin-top:12px">
+        <div class="row"><span class="row-k">Montant à régler</span>
+          <span class="row-v" style="color:#EBD68A;font-weight:700">${tot.toFixed(2)} USDT</span></div>
+      </div>
+      <button class="btn" onclick="location.href='/espace-membre.html'">Régler depuis mon espace membre</button>
+      <button class="btn-ghost" onclick="reset()">Retour</button>`;
+  }
+
   else if(st==='PENDING_PAYMENT'){
     const tx=$('txhash').value.trim();
     h=`<div class="diag"><div class="diag-ico err">!</div>

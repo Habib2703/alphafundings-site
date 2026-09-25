@@ -296,6 +296,41 @@ body{font-family:'Outfit',sans-serif;background:#050505;color:#fff;overflow-x:hi
 .wstep{display:flex;gap:11px;font-size:11px;color:#555;padding:8px 0;text-align:left}
 .wstep b{color:#D4AF37;flex:0 0 auto}
 
+/* ─── Offre privée ─── */
+.of-intro{font-size:13px;line-height:1.75;color:rgba(255,255,255,.6);margin:-6px 0 20px;max-width:640px}
+.of-intro b{color:#f2f0ee}
+.of-accs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:16px}
+.of-acc{position:relative;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:16px;
+  padding:18px 18px 16px;overflow:hidden;animation:popIn .45s ease both}
+.of-acc-k{font-size:8.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:6px}
+.of-acc-v{font-size:22px;font-weight:900;color:#f2f0ee;letter-spacing:-.3px}
+.of-acc-id{font-size:10.5px;color:rgba(255,255,255,.32);margin-top:3px}
+.of-acc-blur{display:flex;gap:18px;margin-top:14px;filter:blur(5px);opacity:.55;user-select:none}
+.of-acc-lock{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:10.5px;font-weight:700;color:#e8b84b}
+.of-old{font-size:13px;color:rgba(255,255,255,.35);text-decoration:line-through;margin-bottom:4px}
+.of-save{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.12em;color:#22c55e;background:rgba(34,197,94,.1);
+  border:1px solid rgba(34,197,94,.22);border-radius:100px;padding:4px 10px;margin:6px 0 4px}
+.of-note{font-size:12.5px;font-style:italic;line-height:1.7;color:rgba(255,255,255,.62);border-left:2px solid rgba(212,175,55,.45);
+  padding:2px 0 2px 14px;margin:16px auto 0;max-width:460px;text-align:left}
+.of-nets{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px auto 4px;max-width:460px}
+.of-net{display:flex;align-items:center;gap:11px;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.35);cursor:pointer;transition:all .25s;color:#e8e6e2;font:700 12.5px 'Outfit',-apple-system,'Segoe UI',Arial,sans-serif;text-align:left}
+.of-net:hover{border-color:rgba(212,175,55,.35);transform:translateY(-2px)}
+.of-net.on{border-color:rgba(212,175,55,.65);background:rgba(212,175,55,.08);box-shadow:0 0 0 3px rgba(212,175,55,.08)}
+.of-net small{display:block;font-size:10px;color:rgba(255,255,255,.42);font-weight:500;margin-top:2px}
+.of-net svg{flex:0 0 auto}
+.of-pick{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:20px}
+.of-pay{overflow:hidden;max-height:0;opacity:0;transform:translateY(-6px);transition:max-height .55s ease,opacity .4s ease,transform .4s ease}
+.of-pay.show{max-height:700px;opacity:1;transform:none}
+.of-rule{font-size:11.5px;line-height:1.7;color:rgba(255,255,255,.62);background:rgba(232,184,75,.06);
+  border:1px solid rgba(232,184,75,.2);border-radius:12px;padding:12px 14px;text-align:left;margin:18px auto 0;max-width:460px}
+.of-rule b{color:#fff}
+.of-steps .wstep{color:rgba(255,255,255,.55);font-size:11.5px}
+.pill-wait{display:flex;align-items:center;gap:7px;background:rgba(232,184,75,.08);border:1px solid rgba(232,184,75,.24);
+  border-radius:8px;padding:6px 12px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e8b84b}
+.pill-wait .dot{width:6px;height:6px;border-radius:50%;background:#e8b84b;animation:blink 1.6s infinite}
+@media(max-width:640px){.of-nets{grid-template-columns:1fr}.of-acc-v{font-size:19px}}
+
 .locked-bg{filter:blur(9px);pointer-events:none;user-select:none;opacity:.55;
   transform:scale(1.01)}
 .lock-overlay{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
@@ -390,6 +425,8 @@ const f0=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
 let CURRENT=null, EQUITY_CHART=null, ACTIVE_ACCOUNT=null;
 // Compte réellement ouvert à l'écran (multi-comptes) ; sinon le dossier connecté.
 const acct=()=>ACTIVE_ACCOUNT||CURRENT;
+let OFFER_VIEW=null;
+const fU=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' USDT';
 const WALLETS={trc20:'TV9nqxztMSicna7JsrjzutRG4Uh9Wm27JE',bep20:'0xBeB51c11D91023579bF534EFCe5b0173D2087c49'};
 
 function screen(name){
@@ -452,10 +489,27 @@ async function forgotPassword(){
 
 function doLogout(){ CURRENT=null; ACTIVE_ACCOUNT=null; $('oid').value=''; $('pw').value=''; screen('loginScreen'); }
 
+const isOfferPending=a=>a.status==='OFFER_PENDING' && !!a.offer_id;
+
+// Regroupe les comptes d'une même offre privée non réglée.
+function offerGroups(accs){
+  const g={};
+  accs.forEach(a=>{
+    if(!isOfferPending(a)) return;
+    (g[a.offer_id]=g[a.offer_id]||{offer_id:a.offer_id,total:a.offer_total,regular:a.offer_regular,
+      note:a.offer_note,accounts:[]}).accounts.push(a);
+  });
+  return Object.values(g);
+}
+
 function renderDashboard(d){
+  const accs=(Array.isArray(d.accounts)&&d.accounts.length)?d.accounts:[d];
+  const offers=offerGroups(accs);
+  // Uniquement une offre à régler : elle occupe tout l'espace.
+  if(offers.length===1 && offers[0].accounts.length===accs.length) return renderOffer(offers[0],false);
   // Plusieurs comptes pour la meme personne : un seul espace, chaque
   // compte affiche avec son propre statut, jamais melange avec un autre.
-  if(Array.isArray(d.accounts) && d.accounts.length > 1){
+  if(accs.length > 1 || offers.length){
     return renderMultiAccount(d);
   }
   const st=d.status;
@@ -465,10 +519,20 @@ function renderDashboard(d){
 }
 
 function renderMultiAccount(d){
-  const accounts=d.accounts;
+  const accounts=(Array.isArray(d.accounts)&&d.accounts.length)?d.accounts:[d];
   const firstName=(d.name||'Trader').split(' ')[0];
 
-  const cards=accounts.map((a,i)=>{
+  const offerCards=offerGroups(accounts).map((o,k)=>`
+      <div class="ma-card" onclick="openOffer(${k})" style="border-color:rgba(212,175,55,.3);background:rgba(212,175,55,.04)">
+        <div class="ma-head">
+          <div><div class="ma-plan">Offre privée · ${o.accounts.length} compte${o.accounts.length>1?'s':''}</div><div class="ma-id mono">${o.offer_id}</div></div>
+          <span class="ma-badge" style="background:rgba(232,184,75,.12);color:#e8b84b">À RÉGLER</span>
+        </div>
+        <div class="ma-note">${offerSizes(o.accounts)} — montant à régler : <b style="color:#EBD68A">${fU(o.total)}</b></div>
+      </div>`).join('');
+
+  const cards=offerCards+accounts.map((a,i)=>{
+    if(isOfferPending(a)) return '';
     const cap=Number(a.account_size||0);
     let body='';
     if(a.status==='ACTIVE'){
@@ -503,10 +567,107 @@ function renderMultiAccount(d){
   $('dashWrap').innerHTML=`
     <div class="dhead">
       <div><div class="dhead-eyebrow">OVERVIEW</div><h1>Bienvenue, ${firstName}</h1></div>
-      <div class="dhead-r"><div class="pill-active"><span class="dot"></span>${accounts.length} COMPTES</div></div>
+      <div class="dhead-r"><div class="pill-active"><span class="dot"></span>${accounts.length} COMPTE${accounts.length>1?'S':''}</div></div>
     </div>
     <div class="ma-list">${cards}</div>
   `;
+}
+
+function offerSizes(accs){
+  const c={};
+  accs.forEach(a=>{const k=Number(a.account_size||0);c[k]=(c[k]||0)+1;});
+  return Object.keys(c).map(Number).sort((x,y)=>y-x).map(k=>c[k]+' × '+f0(k)).join(' + ');
+}
+
+function openOffer(k){
+  ACTIVE_ACCOUNT=null;
+  const o=offerGroups(CURRENT.accounts||[CURRENT])[k];
+  if(!o) return renderDashboard(CURRENT);
+  renderOffer(o,true);
+}
+
+const NET_ICON={
+  trc20:'<svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="9" fill="#EF0027"/><path d="M8 8.5l14.5 3.6-8.2 10.4z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  bep20:'<svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="9" fill="#F3BA2F"/><g fill="#1a1408"><rect x="12.6" y="7.6" width="4.8" height="4.8" transform="rotate(45 15 10)"/><rect x="12.6" y="17.6" width="4.8" height="4.8" transform="rotate(45 15 20)"/><rect x="7.6" y="12.6" width="4.8" height="4.8" transform="rotate(45 10 15)"/><rect x="17.6" y="12.6" width="4.8" height="4.8" transform="rotate(45 20 15)"/></g></svg>'
+};
+
+function renderOffer(o,withBack){
+  OFFER_VIEW=o;
+  const firstName=(CURRENT&&CURRENT.name||'Trader').split(' ')[0];
+  const n=o.accounts.length;
+  const capital=o.accounts.reduce((s,a)=>s+Number(a.account_size||0),0);
+  const total=Number(o.total||0), regular=Number(o.regular||0);
+  const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const accCards=o.accounts.map((a,i)=>`
+      <div class="of-acc" style="animation-delay:${i*0.08}s">
+        <div class="of-acc-k">Instant Funding</div>
+        <div class="of-acc-v mono">${f0(a.account_size)}</div>
+        <div class="of-acc-id mono">${a.order_id}</div>
+        <div class="of-acc-blur" aria-hidden="true">
+          <div><div class="of-acc-k">Equity</div><div class="mono" style="font-size:13px;color:#fff">${f0(a.account_size)}</div></div>
+          <div><div class="of-acc-k">P&amp;L</div><div class="mono" style="font-size:13px;color:#7ee0a8">+$0.00</div></div>
+        </div>
+        <div class="of-acc-lock">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          S'active après règlement
+        </div>
+      </div>`).join('');
+
+  $('dashWrap').innerHTML=`
+    <div class="dhead">
+      <div><div class="dhead-eyebrow">PRIVATE OFFER</div><h1>Bienvenue, ${esc(firstName)}</h1></div>
+      <div class="dhead-r"><div class="pill-wait"><span class="dot"></span>En attente de règlement</div></div>
+    </div>
+    <p class="of-intro">Une offre vous a été réservée à titre personnel&nbsp;: <b>${n} compte${n>1?'s':''} Instant Funding</b>,
+      pour un capital total de <b>${f0(capital)}</b>. ${n>1?'Ils s\'activent':'Il s\'active'} dans cet espace dès la confirmation de votre règlement.</p>
+
+    <div class="of-accs">${accCards}</div>
+
+    <div class="paycard">
+      <div class="pay-k">Montant à régler</div>
+      ${regular>total?`<div class="of-old mono">${fU(regular)}</div>`:''}
+      <div class="pay-v gold-txt">${fU(total)}</div>
+      ${regular>total?`<div class="of-save">TARIF PRIVÉ · −${Math.round((1-total/regular)*100)}%</div>`:''}
+      ${o.note?`<div class="of-note">${esc(o.note)}</div>`:''}
+
+      <div class="of-pick">Choisissez votre réseau de paiement</div>
+      <div class="of-nets">
+        <button class="of-net" data-net="trc20" onclick="offerPay('trc20')">${NET_ICON.trc20}<span>USDT · TRC20<small>Réseau Tron</small></span></button>
+        <button class="of-net" data-net="bep20" onclick="offerPay('bep20')">${NET_ICON.bep20}<span>USDT · BEP20<small>BNB Smart Chain</small></span></button>
+      </div>
+      <div class="of-pay" id="ofPay"></div>
+
+      <div class="of-rule"><b>Réglez exactement ${fU(total)}</b>, en une seule transaction, et conservez la preuve de
+        votre paiement (capture d'écran et identifiant de transaction). Envoyez uniquement de l'USDT, sur le réseau
+        correspondant à l'adresse choisie.</div>
+    </div>
+
+    <div class="wait-list of-steps">
+      <div class="wstep"><b>1.</b><span>Vous réglez ${fU(total)} sur le réseau de votre choix.</span></div>
+      <div class="wstep"><b>2.</b><span>Notre équipe confirme votre règlement : vous en êtes informé par courriel.</span></div>
+      <div class="wstep"><b>3.</b><span>Vos identifiants MetaTrader 5 vous parviennent par courriel.</span></div>
+      <div class="wstep"><b>4.</b><span>${n>1?'Vos comptes s\'activent':'Votre compte s\'active'} ici, avec le suivi de performance.</span></div>
+    </div>
+    <button class="btn-ghost" onclick="location.reload()" style="max-width:300px;margin:0 auto;display:block">Actualiser</button>
+  `;
+  if(withBack) addBackToListButton();
+}
+
+function offerPay(net){
+  const addr=WALLETS[net]; if(!addr) return;
+  document.querySelectorAll('.of-net').forEach(b=>b.classList.toggle('on',b.dataset.net===net));
+  const box=$('ofPay');
+  const qr='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+encodeURIComponent(addr)+'&color=000000&bgcolor=ffffff&qzone=1';
+  box.classList.remove('show');
+  setTimeout(()=>{
+    box.innerHTML=`
+      <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.42);margin:20px 0 14px">
+        Adresse de dépôt · ${net==='bep20'?'USDT BEP20 (BNB Smart Chain)':'USDT TRC20 (Tron)'}</div>
+      <img class="pay-qr" src="${qr}" alt="QR code de l'adresse">
+      <div class="pay-addr" style="max-width:460px;margin-left:auto;margin-right:auto">${addr}</div>
+      <button class="btn-gold" onclick="copyAddr('${addr}',this)" style="max-width:300px;margin:0 auto">Copier l'adresse</button>`;
+    requestAnimationFrame(()=>box.classList.add('show'));
+  },box.innerHTML?180:0);
 }
 
 function openAccountDetail(i){
@@ -623,7 +784,7 @@ function payAddr(amount,network){
     <div class="pay-addr">${addr}</div>
     <button class="btn-gold" onclick="copyAddr('${addr}',this)" style="max-width:300px;margin:0 auto">Copy Address</button>`;
 }
-function copyAddr(a,btn){navigator.clipboard.writeText(a).then(()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,2000);});}
+function copyAddr(a,btn){navigator.clipboard.writeText(a).then(()=>{const o=btn.textContent;btn.textContent=/Copier/.test(o)?'Adresse copiée ✓':'Copied';setTimeout(()=>btn.textContent=o,2000);});}
 
 function renderTerminal(d){
   const p=d.performance||{};
